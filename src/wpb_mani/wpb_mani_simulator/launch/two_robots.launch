@@ -1,0 +1,13 @@
+<launch>
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find wpb_mani_simulator)/worlds/my_warehouse.world"/>
+  </include>
+
+  <param name="robot_description" command="$(find xacro)/xacro $(find wpb_mani_description)/urdf/wpb_mani.urdf.xacro" />
+
+  <node name="spawn_alpha" pkg="gazebo_ros" type="spawn_model" 
+        args="-urdf -model robot_alpha -param robot_description -x -1.5 -y 1.0 -z 0" />
+
+  <node name="spawn_beta" pkg="gazebo_ros" type="spawn_model" 
+        args="-urdf -model robot_beta -param robot_description -x 1.5 -y 1.0 -z 0" />
+</launch>

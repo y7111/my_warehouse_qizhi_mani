@@ -1,0 +1,28 @@
+# --- ROS 编译生成文件夹 ---
+build/
+devel/
+install/
+log/
+
+# --- Python 编译缓存 ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# --- C++ 编译文件 ---
+*.o
+*.so
+*.a
+*.out
+
+# --- IDE/编辑器 配置文件 ---
+.vscode/
+.idea/
+.project
+.settings/
+*.swp
+
+# --- 系统文件 ---
+.DS_Store
+Thumbs.db
