@@ -1,0 +1,268 @@
+<launch>
+
+  <!-- ===== Gazebo: my_warehouse world ===== -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name"  value="$(find wpb_mani_simulator)/worlds/my_warehouse.world"/>
+    <arg name="paused"      value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui"         value="true"/>
+    <arg name="recording"   value="false"/>
+    <arg name="debug"       value="false"/>
+  </include>
+
+  <!-- Shared robot URDF -->
+  <param name="robot_description"
+         command="$(find xacro)/xacro --inorder $(find wpb_mani_description)/urdf/wpb_mani.urdf.xacro"/>
+
+  <!-- Shared map server: publishes /map and /static_map service -->
+  <node name="map_server" pkg="map_server" type="map_server"
+        args="$(find wpb_mani_tutorials)/maps/my_warehouse_map.yaml"/>
+
+  <!-- ==================== Robot Alpha ==================== -->
+  <group ns="robot_alpha">
+    <param name="tf_prefix" value="robot_alpha"/>
+
+    <!-- Spawn into Gazebo -->
+    <node name="spawn_alpha" pkg="gazebo_ros" type="spawn_model"
+          args="-urdf -model robot_alpha -param /robot_description
+                -x -2.0 -y 0.0 -z 0.0 -Y 0.0
+                -robot_namespace robot_alpha"/>
+
+    <!-- Joint states → enables full TF tree in robot_state_publisher -->
+    <node name="joint_state_publisher" pkg="joint_state_publisher"
+          type="joint_state_publisher">
+      <remap from="robot_description" to="/robot_description"/>
+    </node>
+
+    <!-- Joint states → TF -->
+    <node name="robot_state_publisher" pkg="robot_state_publisher"
+          type="robot_state_publisher" output="screen">
+      <param name="publish_frequency" value="20"/>
+      <param name="tf_prefix"         value="robot_alpha"/>
+      <remap from="robot_description" to="/robot_description"/>
+    </node>
+
+    <!-- Lidar filter: scan_raw → scan (within namespace) -->
+    <node pkg="wpb_mani_simulator" type="wpb_mani_sim_lidar_filter" name="lidar_filter">
+      <param name="pub_topic" value="scan"/>
+      <remap from="/scan_raw" to="scan_raw"/>
+    </node>
+
+    <!-- AMCL: remap map service/topic to global, initial pose = spawn position -->
+    <node pkg="amcl" type="amcl" name="amcl" output="screen">
+      <remap from="static_map" to="/static_map"/>
+      <remap from="map"        to="/map"/>
+      <param name="odom_model_type"           value="omni"/>
+      <param name="odom_alpha5"               value="0.1"/>
+      <param name="transform_tolerance"       value="0.2"/>
+      <param name="gui_publish_rate"          value="10.0"/>
+      <param name="laser_max_beams"           value="30"/>
+      <param name="min_particles"             value="100"/>
+      <param name="max_particles"             value="1000"/>
+      <param name="kld_err"                   value="0.05"/>
+      <param name="kld_z"                     value="0.99"/>
+      <param name="odom_alpha1"               value="0.2"/>
+      <param name="odom_alpha2"               value="0.2"/>
+      <param name="odom_alpha3"               value="0.8"/>
+      <param name="odom_alpha4"               value="0.2"/>
+      <param name="laser_z_hit"               value="0.5"/>
+      <param name="laser_z_short"             value="0.05"/>
+      <param name="laser_z_max"               value="0.05"/>
+      <param name="laser_z_rand"              value="0.5"/>
+      <param name="laser_sigma_hit"           value="0.2"/>
+      <param name="laser_lambda_short"        value="0.1"/>
+      <param name="laser_model_type"          value="likelihood_field"/>
+      <param name="laser_likelihood_max_dist" value="2.0"/>
+      <param name="update_min_d"              value="0.2"/>
+      <param name="update_min_a"              value="0.5"/>
+      <param name="odom_frame_id"             value="robot_alpha/odom"/>
+      <param name="base_frame_id"             value="robot_alpha/base_footprint"/>
+      <param name="global_frame_id"           value="map"/>
+      <param name="resample_interval"         value="1"/>
+      <param name="recovery_alpha_slow"       value="0.0"/>
+      <param name="recovery_alpha_fast"       value="0.0"/>
+      <param name="initial_pose_x"            value="-2.0"/>
+      <param name="initial_pose_y"            value="0.0"/>
+      <param name="initial_pose_a"            value="0.0"/>
+    </node>
+
+    <!-- move_base: remap map topic to global -->
+    <node pkg="move_base" type="move_base" name="move_base"
+          respawn="false" output="screen">
+      <remap from="map" to="/map"/>
+      <rosparam ns="global_costmap">
+        global_frame: map
+        robot_base_frame: robot_alpha/base_footprint
+        update_frequency: 1.0
+        publish_frequency: 1.0
+        static_map: true
+        transform_tolerance: 1.0
+        obstacle_range: 6.0
+        raytrace_range: 6.0
+        robot_radius: 0.35
+        inflation_radius: 0.60
+        cost_scaling_factor: 10.0
+        observation_sources: base_lidar
+        base_lidar:
+          {sensor_frame: robot_alpha/base_footprint, data_type: LaserScan,
+           topic: /robot_alpha/scan, marking: true, clearing: true,
+           max_obstacle_height: 1.5, min_obstacle_height: 0.0,
+           observation_persistence: 0.0}
+      </rosparam>
+      <rosparam ns="local_costmap">
+        global_frame: robot_alpha/odom
+        robot_base_frame: robot_alpha/base_footprint
+        update_frequency: 5.0
+        publish_frequency: 3.0
+        static_map: false
+        rolling_window: true
+        width: 3.0
+        height: 3.0
+        resolution: 0.05
+        transform_tolerance: 0.5
+        obstacle_range: 6.0
+        raytrace_range: 6.0
+        robot_radius: 0.35
+        inflation_radius: 0.60
+        cost_scaling_factor: 10.0
+        observation_sources: base_lidar
+        base_lidar:
+          {sensor_frame: robot_alpha/base_footprint, data_type: LaserScan,
+           topic: /robot_alpha/scan, marking: true, clearing: true,
+           max_obstacle_height: 1.5, min_obstacle_height: 0.0,
+           observation_persistence: 0.0}
+      </rosparam>
+      <param name="base_global_planner"   value="global_planner/GlobalPlanner"/>
+      <param name="use_dijkstra"          value="true"/>
+      <param name="base_local_planner"    value="wpb_local_planner/WpbLocalPlanner"/>
+      <param name="controller_frequency"  value="10" type="double"/>
+    </node>
+  </group>
+
+  <!-- ==================== Robot Beta ==================== -->
+  <group ns="robot_beta">
+    <param name="tf_prefix" value="robot_beta"/>
+
+    <!-- Spawn into Gazebo -->
+    <node name="spawn_beta" pkg="gazebo_ros" type="spawn_model"
+          args="-urdf -model robot_beta -param /robot_description
+                -x 2.0 -y 0.0 -z 0.0 -Y 3.14159
+                -robot_namespace robot_beta"/>
+
+    <!-- Joint states → enables full TF tree in robot_state_publisher -->
+    <node name="joint_state_publisher" pkg="joint_state_publisher"
+          type="joint_state_publisher">
+      <remap from="robot_description" to="/robot_description"/>
+    </node>
+
+    <!-- Joint states → TF -->
+    <node name="robot_state_publisher" pkg="robot_state_publisher"
+          type="robot_state_publisher" output="screen">
+      <param name="publish_frequency" value="20"/>
+      <param name="tf_prefix"         value="robot_beta"/>
+      <remap from="robot_description" to="/robot_description"/>
+    </node>
+
+    <!-- Lidar filter: scan_raw → scan (within namespace) -->
+    <node pkg="wpb_mani_simulator" type="wpb_mani_sim_lidar_filter" name="lidar_filter">
+      <param name="pub_topic" value="scan"/>
+      <remap from="/scan_raw" to="scan_raw"/>
+    </node>
+
+    <!-- AMCL: remap map service/topic to global, initial pose = spawn position -->
+    <node pkg="amcl" type="amcl" name="amcl" output="screen">
+      <remap from="static_map" to="/static_map"/>
+      <remap from="map"        to="/map"/>
+      <param name="odom_model_type"           value="omni"/>
+      <param name="odom_alpha5"               value="0.1"/>
+      <param name="transform_tolerance"       value="0.2"/>
+      <param name="gui_publish_rate"          value="10.0"/>
+      <param name="laser_max_beams"           value="30"/>
+      <param name="min_particles"             value="100"/>
+      <param name="max_particles"             value="1000"/>
+      <param name="kld_err"                   value="0.05"/>
+      <param name="kld_z"                     value="0.99"/>
+      <param name="odom_alpha1"               value="0.2"/>
+      <param name="odom_alpha2"               value="0.2"/>
+      <param name="odom_alpha3"               value="0.8"/>
+      <param name="odom_alpha4"               value="0.2"/>
+      <param name="laser_z_hit"               value="0.5"/>
+      <param name="laser_z_short"             value="0.05"/>
+      <param name="laser_z_max"               value="0.05"/>
+      <param name="laser_z_rand"              value="0.5"/>
+      <param name="laser_sigma_hit"           value="0.2"/>
+      <param name="laser_lambda_short"        value="0.1"/>
+      <param name="laser_model_type"          value="likelihood_field"/>
+      <param name="laser_likelihood_max_dist" value="2.0"/>
+      <param name="update_min_d"              value="0.2"/>
+      <param name="update_min_a"              value="0.5"/>
+      <param name="odom_frame_id"             value="robot_beta/odom"/>
+      <param name="base_frame_id"             value="robot_beta/base_footprint"/>
+      <param name="global_frame_id"           value="map"/>
+      <param name="resample_interval"         value="1"/>
+      <param name="recovery_alpha_slow"       value="0.0"/>
+      <param name="recovery_alpha_fast"       value="0.0"/>
+      <param name="initial_pose_x"            value="2.0"/>
+      <param name="initial_pose_y"            value="0.0"/>
+      <param name="initial_pose_a"            value="3.14159"/>
+    </node>
+
+    <!-- move_base: remap map topic to global -->
+    <node pkg="move_base" type="move_base" name="move_base"
+          respawn="false" output="screen">
+      <remap from="map" to="/map"/>
+      <rosparam ns="global_costmap">
+        global_frame: map
+        robot_base_frame: robot_beta/base_footprint
+        update_frequency: 1.0
+        publish_frequency: 1.0
+        static_map: true
+        transform_tolerance: 1.0
+        obstacle_range: 6.0
+        raytrace_range: 6.0
+        robot_radius: 0.35
+        inflation_radius: 0.60
+        cost_scaling_factor: 10.0
+        observation_sources: base_lidar
+        base_lidar:
+          {sensor_frame: robot_beta/base_footprint, data_type: LaserScan,
+           topic: /robot_beta/scan, marking: true, clearing: true,
+           max_obstacle_height: 1.5, min_obstacle_height: 0.0,
+           observation_persistence: 0.0}
+      </rosparam>
+      <rosparam ns="local_costmap">
+        global_frame: robot_beta/odom
+        robot_base_frame: robot_beta/base_footprint
+        update_frequency: 5.0
+        publish_frequency: 3.0
+        static_map: false
+        rolling_window: true
+        width: 3.0
+        height: 3.0
+        resolution: 0.05
+        transform_tolerance: 0.5
+        obstacle_range: 6.0
+        raytrace_range: 6.0
+        robot_radius: 0.35
+        inflation_radius: 0.60
+        cost_scaling_factor: 10.0
+        observation_sources: base_lidar
+        base_lidar:
+          {sensor_frame: robot_beta/base_footprint, data_type: LaserScan,
+           topic: /robot_beta/scan, marking: true, clearing: true,
+           max_obstacle_height: 1.5, min_obstacle_height: 0.0,
+           observation_persistence: 0.0}
+      </rosparam>
+      <param name="base_global_planner"   value="global_planner/GlobalPlanner"/>
+      <param name="use_dijkstra"          value="true"/>
+      <param name="base_local_planner"    value="wpb_local_planner/WpbLocalPlanner"/>
+      <param name="controller_frequency"  value="10" type="double"/>
+    </node>
+  </group>
+
+  <!-- ===== RViz ===== -->
+  <arg name="rvizconfig" default="$(find wpb_mani_simulator)/rviz/nav.rviz"/>
+  <node name="rviz" pkg="rviz" type="rviz"
+        args="-d $(arg rvizconfig)" required="true"/>
+
+</launch>

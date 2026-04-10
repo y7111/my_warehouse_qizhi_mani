@@ -164,7 +164,7 @@
     <plugin name="base_controller" filename="libwpb_mani_plugin.so">
       <publishOdometryTf>true</publishOdometryTf>
       <commandTopic>cmd_vel</commandTopic>
-      <odometryTopic>/odom</odometryTopic>
+      <odometryTopic>odom</odometryTopic>
       <odometryFrame>odom</odometryFrame>
       <odometryRate>20.0</odometryRate>
       <robotBaseFrame>base_footprint</robotBaseFrame>

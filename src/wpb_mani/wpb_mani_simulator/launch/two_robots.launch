@@ -5,9 +5,18 @@
 
   <param name="robot_description" command="$(find xacro)/xacro $(find wpb_mani_description)/urdf/wpb_mani.urdf.xacro" />
 
-  <node name="spawn_alpha" pkg="gazebo_ros" type="spawn_model" 
-        args="-urdf -model robot_alpha -param robot_description -x -1.5 -y 1.0 -z 0" />
+  <group ns="robot_alpha">
+    <param name="tf_prefix" value="robot_alpha" />
+    
+    <node name="spawn_alpha" pkg="gazebo_ros" type="spawn_model" 
+          args="-urdf -model robot_alpha -param /robot_description -x -2.0 -y 0.0 -z 0 -Y 0.0 -robot_namespace robot_alpha" />
+  </group>
 
-  <node name="spawn_beta" pkg="gazebo_ros" type="spawn_model" 
-        args="-urdf -model robot_beta -param robot_description -x 1.5 -y 1.0 -z 0" />
+  <group ns="robot_beta">
+    <param name="tf_prefix" value="robot_beta" />
+    
+    <node name="spawn_beta" pkg="gazebo_ros" type="spawn_model" 
+          args="-urdf -model robot_beta -param /robot_description -x 2.0 -y 0.0 -z 0 -Y 3.14159 -robot_namespace robot_beta" />
+  </group>
+
 </launch>
