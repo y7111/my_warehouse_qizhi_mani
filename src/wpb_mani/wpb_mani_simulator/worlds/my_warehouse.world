@@ -18,19 +18,19 @@
       </link>
     </model>
 
-    <model name='rack_1'><static>1</static><pose>-0.7 0.5 0.309 0 0 0</pose>
-      <link name='l'><collision name='c'><geometry><box><size>0.6 0.4 0.618</size></box></geometry></collision>
-      <visual name='v'><geometry><box><size>0.6 0.4 0.618</size></box></geometry><material><script><name>Gazebo/Grey</name></script></material></visual></link></model>
-    
-    <model name='rack_2'><static>1</static><pose>0.7 0.5 0.309 0 0 0</pose>
+    <model name='rack_1'><static>1</static><pose>-0.7 0.6 0.309 0 0 0</pose>
       <link name='l'><collision name='c'><geometry><box><size>0.6 0.4 0.618</size></box></geometry></collision>
       <visual name='v'><geometry><box><size>0.6 0.4 0.618</size></box></geometry><material><script><name>Gazebo/Grey</name></script></material></visual></link></model>
 
-    <model name='rack_3'><static>1</static><pose>-0.7 -0.5 0.309 0 0 0</pose>
+    <model name='rack_2'><static>1</static><pose>0.7 0.6 0.309 0 0 0</pose>
       <link name='l'><collision name='c'><geometry><box><size>0.6 0.4 0.618</size></box></geometry></collision>
       <visual name='v'><geometry><box><size>0.6 0.4 0.618</size></box></geometry><material><script><name>Gazebo/Grey</name></script></material></visual></link></model>
 
-    <model name='rack_4'><static>1</static><pose>0.7 -0.5 0.309 0 0 0</pose>
+    <model name='rack_3'><static>1</static><pose>-0.7 -0.6 0.309 0 0 0</pose>
+      <link name='l'><collision name='c'><geometry><box><size>0.6 0.4 0.618</size></box></geometry></collision>
+      <visual name='v'><geometry><box><size>0.6 0.4 0.618</size></box></geometry><material><script><name>Gazebo/Grey</name></script></material></visual></link></model>
+
+    <model name='rack_4'><static>1</static><pose>0.7 -0.6 0.309 0 0 0</pose>
       <link name='l'><collision name='c'><geometry><box><size>0.6 0.4 0.618</size></box></geometry></collision>
       <visual name='v'><geometry><box><size>0.6 0.4 0.618</size></box></geometry><material><script><name>Gazebo/Grey</name></script></material></visual></link></model>
 

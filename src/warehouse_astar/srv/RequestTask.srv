@@ -1,0 +1,11 @@
+string robot_name
+---
+bool success
+int32 shelf_id
+string item_type
+float64 pickup_x
+float64 pickup_y
+float64 pickup_yaw
+float64 goal_x
+float64 goal_y
+float64 goal_yaw

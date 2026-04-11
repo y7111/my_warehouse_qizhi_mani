@@ -25,7 +25,7 @@
     <!-- Spawn into Gazebo -->
     <node name="spawn_alpha" pkg="gazebo_ros" type="spawn_model"
           args="-urdf -model robot_alpha -param /robot_description
-                -x -2.0 -y 0.0 -z 0.0 -Y 0.0
+                -x -1.0 -y 0.0 -z 0.0 -Y 0.0
                 -robot_namespace robot_alpha"/>
 
     <!-- Joint states → enables full TF tree in robot_state_publisher -->
@@ -81,9 +81,12 @@
       <param name="resample_interval"         value="1"/>
       <param name="recovery_alpha_slow"       value="0.0"/>
       <param name="recovery_alpha_fast"       value="0.0"/>
-      <param name="initial_pose_x"            value="-2.0"/>
+      <param name="initial_pose_x"            value="-1.0"/>
       <param name="initial_pose_y"            value="0.0"/>
       <param name="initial_pose_a"            value="0.0"/>
+      <param name="initial_cov_xx"            value="0.01"/>
+      <param name="initial_cov_yy"            value="0.01"/>
+      <param name="initial_cov_aa"            value="0.001"/>
     </node>
 
     <!-- move_base: remap map topic to global -->
@@ -99,8 +102,8 @@
         transform_tolerance: 1.0
         obstacle_range: 6.0
         raytrace_range: 6.0
-        robot_radius: 0.35
-        inflation_radius: 0.60
+        robot_radius: 0.22
+        inflation_radius: 0.35
         cost_scaling_factor: 10.0
         observation_sources: base_lidar
         base_lidar:
@@ -122,8 +125,8 @@
         transform_tolerance: 0.5
         obstacle_range: 6.0
         raytrace_range: 6.0
-        robot_radius: 0.35
-        inflation_radius: 0.60
+        robot_radius: 0.22
+        inflation_radius: 0.35
         cost_scaling_factor: 10.0
         observation_sources: base_lidar
         base_lidar:
@@ -132,10 +135,15 @@
            max_obstacle_height: 1.5, min_obstacle_height: 0.0,
            observation_persistence: 0.0}
       </rosparam>
-      <param name="base_global_planner"   value="global_planner/GlobalPlanner"/>
-      <param name="use_dijkstra"          value="true"/>
-      <param name="base_local_planner"    value="wpb_local_planner/WpbLocalPlanner"/>
-      <param name="controller_frequency"  value="10" type="double"/>
+      <param name="base_global_planner"        value="global_planner/GlobalPlanner"/>
+      <param name="use_dijkstra"               value="false"/>
+      <param name="base_local_planner"         value="wpb_local_planner/WpbLocalPlanner"/>
+      <param name="controller_frequency"       value="5" type="double"/>
+      <param name="recovery_behavior_enabled"  value="false"/>
+      <param name="clearing_rotation_allowed"  value="false"/>
+      <param name="WpbLocalPlanner/scan_topic"          value="/robot_alpha/scan"/>
+      <param name="WpbLocalPlanner/goal_dist_tolerance" value="0.5"/>
+      <param name="WpbLocalPlanner/goal_yaw_tolerance"  value="1.5"/>
     </node>
   </group>
 
@@ -146,7 +154,7 @@
     <!-- Spawn into Gazebo -->
     <node name="spawn_beta" pkg="gazebo_ros" type="spawn_model"
           args="-urdf -model robot_beta -param /robot_description
-                -x 2.0 -y 0.0 -z 0.0 -Y 3.14159
+                -x 1.0 -y 0.0 -z 0.0 -Y 3.14159
                 -robot_namespace robot_beta"/>
 
     <!-- Joint states → enables full TF tree in robot_state_publisher -->
@@ -202,9 +210,12 @@
       <param name="resample_interval"         value="1"/>
       <param name="recovery_alpha_slow"       value="0.0"/>
       <param name="recovery_alpha_fast"       value="0.0"/>
-      <param name="initial_pose_x"            value="2.0"/>
+      <param name="initial_pose_x"            value="1.0"/>
       <param name="initial_pose_y"            value="0.0"/>
       <param name="initial_pose_a"            value="3.14159"/>
+      <param name="initial_cov_xx"            value="0.01"/>
+      <param name="initial_cov_yy"            value="0.01"/>
+      <param name="initial_cov_aa"            value="0.001"/>
     </node>
 
     <!-- move_base: remap map topic to global -->
@@ -220,8 +231,8 @@
         transform_tolerance: 1.0
         obstacle_range: 6.0
         raytrace_range: 6.0
-        robot_radius: 0.35
-        inflation_radius: 0.60
+        robot_radius: 0.22
+        inflation_radius: 0.35
         cost_scaling_factor: 10.0
         observation_sources: base_lidar
         base_lidar:
@@ -243,8 +254,8 @@
         transform_tolerance: 0.5
         obstacle_range: 6.0
         raytrace_range: 6.0
-        robot_radius: 0.35
-        inflation_radius: 0.60
+        robot_radius: 0.22
+        inflation_radius: 0.35
         cost_scaling_factor: 10.0
         observation_sources: base_lidar
         base_lidar:
@@ -253,10 +264,15 @@
            max_obstacle_height: 1.5, min_obstacle_height: 0.0,
            observation_persistence: 0.0}
       </rosparam>
-      <param name="base_global_planner"   value="global_planner/GlobalPlanner"/>
-      <param name="use_dijkstra"          value="true"/>
-      <param name="base_local_planner"    value="wpb_local_planner/WpbLocalPlanner"/>
-      <param name="controller_frequency"  value="10" type="double"/>
+      <param name="base_global_planner"        value="global_planner/GlobalPlanner"/>
+      <param name="use_dijkstra"               value="false"/>
+      <param name="base_local_planner"         value="wpb_local_planner/WpbLocalPlanner"/>
+      <param name="controller_frequency"       value="5" type="double"/>
+      <param name="recovery_behavior_enabled"  value="false"/>
+      <param name="clearing_rotation_allowed"  value="false"/>
+      <param name="WpbLocalPlanner/scan_topic"          value="/robot_beta/scan"/>
+      <param name="WpbLocalPlanner/goal_dist_tolerance" value="0.5"/>
+      <param name="WpbLocalPlanner/goal_yaw_tolerance"  value="1.5"/>
     </node>
   </group>
 

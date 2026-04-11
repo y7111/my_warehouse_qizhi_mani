@@ -1,0 +1,43 @@
+<launch>
+
+  <!-- ============================================================
+       warehouse_system.launch
+       在 two_robots_nav.launch 的基础上，额外启动仓储调度系统：
+         - warehouse_manager : 商品随机刷新 + 任务分配
+         - agent_alpha       : robot_alpha 的任务执行状态机
+         - agent_beta        : robot_beta  的任务执行状态机
+       ============================================================ -->
+
+  <!-- 1. 启动双车导航底座（Gazebo + AMCL + move_base + RViz） -->
+  <include file="$(find wpb_mani_simulator)/launch/two_robots_nav.launch"/>
+
+  <!-- 2. 自动初始化两个机器人在 AMCL 中的精确位姿 -->
+  <node pkg="warehouse_astar" type="init_robot_poses.py"
+        name="init_robot_poses" output="screen"
+        launch-prefix="bash -c 'sleep 5 &amp;&amp; exec $0 $@' -- "/>
+
+  <!-- 3. A* 路径规划服务（订阅 /map，提供路径规划服务 + RViz 可视化） -->
+  <node pkg="warehouse_astar" type="astar_planner.py"
+        name="astar_planner" output="screen"
+        launch-prefix="bash -c 'sleep 6 &amp;&amp; exec $0 $@' -- "/>
+
+  <!-- 4. 仓储调度节点 -->
+  <node pkg="warehouse_astar" type="warehouse_manager.py"
+        name="warehouse_manager" output="screen"
+        launch-prefix="bash -c 'sleep 8 &amp;&amp; exec $0 $@' -- "/>
+
+  <!-- 5. robot_alpha 任务代理 -->
+  <node pkg="warehouse_astar" type="robot_agent.py"
+        name="agent_alpha" output="screen"
+        launch-prefix="bash -c 'sleep 14 &amp;&amp; exec $0 $@' -- ">
+    <param name="robot_name" value="robot_alpha"/>
+  </node>
+
+  <!-- 6. robot_beta 任务代理 -->
+  <node pkg="warehouse_astar" type="robot_agent.py"
+        name="agent_beta" output="screen"
+        launch-prefix="bash -c 'sleep 14 &amp;&amp; exec $0 $@' -- ">
+    <param name="robot_name" value="robot_beta"/>
+  </node>
+
+</launch>
