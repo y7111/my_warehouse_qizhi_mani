@@ -29,17 +29,12 @@
     </transmission>
   </xacro:macro>
 
-  <!-- Transmission 1 -->
-  <xacro:SimpleTransmissionPosition n="1" joint="joint1" />
-
-  <!-- Transmission 2 -->
-  <xacro:SimpleTransmissionPosition n="2" joint="joint2" />
-
-  <!-- Transmission 3 -->
-  <xacro:SimpleTransmissionPosition n="3" joint="joint3" />
-
-  <!-- Transmission 4 -->
-  <xacro:SimpleTransmissionPosition n="4" joint="joint4" />
+  <!-- Arm transmissions disabled: joints are free physics joints with gravity=0
+       Use /gazebo/set_model_configuration to set arm pose -->
+  <!-- <xacro:SimpleTransmissionPosition n="1" joint="joint1" /> -->
+  <!-- <xacro:SimpleTransmissionPosition n="2" joint="joint2" /> -->
+  <!-- <xacro:SimpleTransmissionPosition n="3" joint="joint3" /> -->
+  <!-- <xacro:SimpleTransmissionPosition n="4" joint="joint4" /> -->
 
   <!-- Transmission 5 -->
   <!-- <xacro:SimpleTransmissionEffort n="5" joint="gripper" /> -->

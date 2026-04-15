@@ -25,8 +25,17 @@
     <!-- Spawn into Gazebo -->
     <node name="spawn_alpha" pkg="gazebo_ros" type="spawn_model"
           args="-urdf -model robot_alpha -param /robot_description
-                -x -1.0 -y 0.0 -z 0.0 -Y 0.0
+                -x -5.0 -y 0.0 -z 0.0 -Y 0.0
                 -robot_namespace robot_alpha"/>
+
+    <!-- Arm joint position controllers -->
+    <rosparam file="$(find wpb_mani_simulator)/config/arm_control.yaml" command="load"/>
+    <node name="arm_spawner" pkg="controller_manager" type="spawner"
+          respawn="false" output="screen"
+          args="--wait-for-start-timeout 30
+                joint1_position_controller joint2_position_controller
+                joint3_position_controller joint4_position_controller
+                gripper_position_controller"/>
 
     <!-- Joint states → enables full TF tree in robot_state_publisher -->
     <node name="joint_state_publisher" pkg="joint_state_publisher"
@@ -81,7 +90,7 @@
       <param name="resample_interval"         value="1"/>
       <param name="recovery_alpha_slow"       value="0.0"/>
       <param name="recovery_alpha_fast"       value="0.0"/>
-      <param name="initial_pose_x"            value="-1.0"/>
+      <param name="initial_pose_x"            value="-5.0"/>
       <param name="initial_pose_y"            value="0.0"/>
       <param name="initial_pose_a"            value="0.0"/>
       <param name="initial_cov_xx"            value="0.01"/>
@@ -142,7 +151,7 @@
       <param name="recovery_behavior_enabled"  value="false"/>
       <param name="clearing_rotation_allowed"  value="false"/>
       <param name="WpbLocalPlanner/scan_topic"          value="/robot_alpha/scan"/>
-      <param name="WpbLocalPlanner/goal_dist_tolerance" value="0.5"/>
+      <param name="WpbLocalPlanner/goal_dist_tolerance" value="0.2"/>
       <param name="WpbLocalPlanner/goal_yaw_tolerance"  value="1.5"/>
     </node>
   </group>
@@ -154,8 +163,17 @@
     <!-- Spawn into Gazebo -->
     <node name="spawn_beta" pkg="gazebo_ros" type="spawn_model"
           args="-urdf -model robot_beta -param /robot_description
-                -x 1.0 -y 0.0 -z 0.0 -Y 3.14159
+                -x 5.0 -y 0.0 -z 0.0 -Y 3.14159
                 -robot_namespace robot_beta"/>
+
+    <!-- Arm joint position controllers -->
+    <rosparam file="$(find wpb_mani_simulator)/config/arm_control.yaml" command="load"/>
+    <node name="arm_spawner" pkg="controller_manager" type="spawner"
+          respawn="false" output="screen"
+          args="--wait-for-start-timeout 30
+                joint1_position_controller joint2_position_controller
+                joint3_position_controller joint4_position_controller
+                gripper_position_controller"/>
 
     <!-- Joint states → enables full TF tree in robot_state_publisher -->
     <node name="joint_state_publisher" pkg="joint_state_publisher"
@@ -210,7 +228,7 @@
       <param name="resample_interval"         value="1"/>
       <param name="recovery_alpha_slow"       value="0.0"/>
       <param name="recovery_alpha_fast"       value="0.0"/>
-      <param name="initial_pose_x"            value="1.0"/>
+      <param name="initial_pose_x"            value="5.0"/>
       <param name="initial_pose_y"            value="0.0"/>
       <param name="initial_pose_a"            value="3.14159"/>
       <param name="initial_cov_xx"            value="0.01"/>
@@ -271,7 +289,7 @@
       <param name="recovery_behavior_enabled"  value="false"/>
       <param name="clearing_rotation_allowed"  value="false"/>
       <param name="WpbLocalPlanner/scan_topic"          value="/robot_beta/scan"/>
-      <param name="WpbLocalPlanner/goal_dist_tolerance" value="0.5"/>
+      <param name="WpbLocalPlanner/goal_dist_tolerance" value="0.2"/>
       <param name="WpbLocalPlanner/goal_yaw_tolerance"  value="1.5"/>
     </node>
   </group>

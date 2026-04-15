@@ -1,0 +1,59 @@
+<launch>
+  <!--
+    warehouse_full.launch  ─  仓储系统完整启动文件
+
+    启动顺序：
+      0s  - Gazebo + 地图 + AMCL + move_base + RViz  (two_robots_nav)
+      5s  - AMCL 初始位姿设置
+      6s  - A* 路径规划服务
+      8s  - 货物生命周期管理（cargo_manager）
+      9s  - 仓储任务调度（warehouse_manager）
+     15s  - robot_alpha 任务代理（含机械臂）
+     15s  - robot_beta  任务代理（含机械臂）
+
+    用法：
+      roslaunch warehouse_astar warehouse_full.launch
+
+    若只想看 QMIX 推理（不启动任务代理），用：
+      roslaunch wpb_mani_simulator two_robots_nav.launch
+      rosrun warehouse_astar qmix_eval.py
+  -->
+
+  <!-- ① 双车导航底座（Gazebo + AMCL + move_base + RViz） -->
+  <include file="$(find wpb_mani_simulator)/launch/two_robots_nav.launch"/>
+
+  <!-- ② 初始化两车 AMCL 位姿 -->
+  <node pkg="warehouse_astar" type="init_robot_poses.py"
+        name="init_robot_poses" output="screen"
+        launch-prefix="bash -c 'sleep 5 &amp;&amp; exec $0 $@' -- "/>
+
+  <!-- ③ A* 路径规划可视化服务 -->
+  <node pkg="warehouse_astar" type="astar_planner.py"
+        name="astar_planner" output="screen"
+        launch-prefix="bash -c 'sleep 6 &amp;&amp; exec $0 $@' -- "/>
+
+  <!-- ④ 货物生命周期管理（在货架上生成/删除货箱模型，配送后自动补货） -->
+  <node pkg="warehouse_astar" type="cargo_manager.py"
+        name="cargo_manager" output="screen"
+        launch-prefix="bash -c 'sleep 8 &amp;&amp; exec $0 $@' -- "/>
+
+  <!-- ⑤ 仓储任务调度（随机分配 A/B 任务，配送后重新入队） -->
+  <node pkg="warehouse_astar" type="warehouse_manager.py"
+        name="warehouse_manager" output="screen"
+        launch-prefix="bash -c 'sleep 9 &amp;&amp; exec $0 $@' -- "/>
+
+  <!-- ⑥ robot_alpha 任务代理 -->
+  <node pkg="warehouse_astar" type="robot_agent.py"
+        name="agent_alpha" output="screen"
+        launch-prefix="bash -c 'sleep 15 &amp;&amp; exec $0 $@' -- ">
+    <param name="robot_name" value="robot_alpha"/>
+  </node>
+
+  <!-- ⑦ robot_beta 任务代理 -->
+  <node pkg="warehouse_astar" type="robot_agent.py"
+        name="agent_beta" output="screen"
+        launch-prefix="bash -c 'sleep 15 &amp;&amp; exec $0 $@' -- ">
+    <param name="robot_name" value="robot_beta"/>
+  </node>
+
+</launch>

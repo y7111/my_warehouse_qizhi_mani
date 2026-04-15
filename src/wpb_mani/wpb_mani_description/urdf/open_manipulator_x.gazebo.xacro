@@ -19,21 +19,27 @@
 
   <!-- Link2 -->
   <RefLink ref="link2"/>
+  <gazebo reference="link2"><gravity>0</gravity></gazebo>
 
   <!-- Link3 -->
   <RefLink ref="link3"/>
+  <gazebo reference="link3"><gravity>0</gravity></gazebo>
 
   <!-- Link4 -->
   <RefLink ref="link4"/>
+  <gazebo reference="link4"><gravity>0</gravity></gazebo>
 
   <!-- Link5 -->
   <RefLink ref="link5"/>
+  <gazebo reference="link5"><gravity>0</gravity></gazebo>
 
   <!-- gripper_link -->
   <RefLink ref="gripper_link"/>
+  <gazebo reference="gripper_link"><gravity>0</gravity></gazebo>
 
   <!-- gripper_link_sub -->
   <RefLink ref="gripper_link_sub"/>
+  <gazebo reference="gripper_link_sub"><gravity>0</gravity></gazebo>
 
   <!-- end effector link -->
   <gazebo reference="end_effector_link">

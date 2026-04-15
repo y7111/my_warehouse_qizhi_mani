@@ -1,42 +1,39 @@
 <launch>
 
   <!-- ============================================================
-       warehouse_system.launch
-       在 two_robots_nav.launch 的基础上，额外启动仓储调度系统：
-         - warehouse_manager : 商品随机刷新 + 任务分配
-         - agent_alpha       : robot_alpha 的任务执行状态机
-         - agent_beta        : robot_beta  的任务执行状态机
+       warehouse_system.launch  —  简化版仓储系统
+       ─────────────────────────────────────────────────────────────
+       启动顺序（各节点延迟等待前置服务就绪）：
+         0s  → Gazebo + AMCL + move_base + RViz（来自 two_robots_nav）
+         5s  → init_robot_poses：修复 RViz 位置偏移
+         8s  → warehouse_manager：状态监控发布
+        20s  → agent_alpha / agent_beta：开始搬运任务
        ============================================================ -->
 
-  <!-- 1. 启动双车导航底座（Gazebo + AMCL + move_base + RViz） -->
+  <!-- 1. 导航底座 -->
   <include file="$(find wpb_mani_simulator)/launch/two_robots_nav.launch"/>
 
-  <!-- 2. 自动初始化两个机器人在 AMCL 中的精确位姿 -->
+  <!-- 2. 修复 AMCL 初始位姿偏移 -->
   <node pkg="warehouse_astar" type="init_robot_poses.py"
         name="init_robot_poses" output="screen"
         launch-prefix="bash -c 'sleep 5 &amp;&amp; exec $0 $@' -- "/>
 
-  <!-- 3. A* 路径规划服务（订阅 /map，提供路径规划服务 + RViz 可视化） -->
-  <node pkg="warehouse_astar" type="astar_planner.py"
-        name="astar_planner" output="screen"
-        launch-prefix="bash -c 'sleep 6 &amp;&amp; exec $0 $@' -- "/>
-
-  <!-- 4. 仓储调度节点 -->
+  <!-- 3. 仓储状态管理（轻量，只做状态记录和发布） -->
   <node pkg="warehouse_astar" type="warehouse_manager.py"
         name="warehouse_manager" output="screen"
         launch-prefix="bash -c 'sleep 8 &amp;&amp; exec $0 $@' -- "/>
 
-  <!-- 5. robot_alpha 任务代理 -->
+  <!-- 4. robot_alpha：负责 rack_1(绿A) + rack_3(绿A) → goal_A -->
   <node pkg="warehouse_astar" type="robot_agent.py"
         name="agent_alpha" output="screen"
-        launch-prefix="bash -c 'sleep 14 &amp;&amp; exec $0 $@' -- ">
+        launch-prefix="bash -c 'sleep 20 &amp;&amp; exec $0 $@' -- ">
     <param name="robot_name" value="robot_alpha"/>
   </node>
 
-  <!-- 6. robot_beta 任务代理 -->
+  <!-- 5. robot_beta：负责 rack_2(蓝B) + rack_4(蓝B) → goal_B -->
   <node pkg="warehouse_astar" type="robot_agent.py"
         name="agent_beta" output="screen"
-        launch-prefix="bash -c 'sleep 14 &amp;&amp; exec $0 $@' -- ">
+        launch-prefix="bash -c 'sleep 20 &amp;&amp; exec $0 $@' -- ">
     <param name="robot_name" value="robot_beta"/>
   </node>
 

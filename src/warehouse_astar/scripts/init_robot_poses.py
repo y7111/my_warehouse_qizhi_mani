@@ -12,8 +12,8 @@ import math
 
 # 与 two_robots_nav.launch 中的 spawn 坐标严格一致
 ROBOTS = {
-    'robot_alpha': {'x': -1.5, 'y': 0.0, 'yaw': 0.0},
-    'robot_beta':  {'x':  1.5, 'y': 0.0, 'yaw': math.pi},
+    'robot_alpha': {'x': -5.0, 'y': 0.0, 'yaw': 0.0},
+    'robot_beta':  {'x':  5.0, 'y': 0.0, 'yaw': math.pi},
 }
 
 

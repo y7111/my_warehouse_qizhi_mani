@@ -3,6 +3,7 @@ project(warehouse_astar)
 
 find_package(catkin REQUIRED COMPONENTS
   actionlib
+  gazebo_msgs
   geometry_msgs
   move_base_msgs
   nav_msgs
@@ -28,6 +29,7 @@ generate_messages(
 catkin_package(
   CATKIN_DEPENDS
     actionlib
+    gazebo_msgs
     geometry_msgs
     move_base_msgs
     nav_msgs
@@ -47,5 +49,10 @@ catkin_install_python(PROGRAMS
   scripts/robot_agent.py
   scripts/init_robot_poses.py
   scripts/test_nav.py
+  scripts/qmix_train.py
+  scripts/qmix_eval.py
+  scripts/plot_curves.py
+  scripts/arm_ctrl.py
+  scripts/cargo_manager.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
