@@ -1,0 +1,40 @@
+[mlp] Episode   100 | ε=0.985 | 平均奖励= 204.40 | 平均送达=21.99
+[mlp] Episode   200 | ε=0.970 | 平均奖励= 201.10 | 平均送达=21.70
+  → 已保存: checkpoints_v5_mlp/qmix_ep200.pt
+[mlp] Episode   300 | ε=0.955 | 平均奖励= 203.50 | 平均送达=21.93
+[mlp] Episode   400 | ε=0.940 | 平均奖励= 193.60 | 平均送达=20.90
+  → 已保存: checkpoints_v5_mlp/qmix_ep400.pt
+[mlp] Episode   500 | ε=0.925 | 平均奖励= 204.30 | 平均送达=21.97
+[mlp] Episode   600 | ε=0.910 | 平均奖励= 203.90 | 平均送达=21.94
+  → 已保存: checkpoints_v5_mlp/qmix_ep600.pt
+[mlp] Episode   700 | ε=0.895 | 平均奖励= 195.70 | 平均送达=21.10
+[mlp] Episode   800 | ε=0.880 | 平均奖励= 178.30 | 平均送达=19.36
+  → 已保存: checkpoints_v5_mlp/qmix_ep800.pt
+[mlp] Episode   900 | ε=0.865 | 平均奖励= 195.80 | 平均送达=21.20
+[mlp] Episode  1000 | ε=0.850 | 平均奖励= 196.00 | 平均送达=21.21
+  → 已保存: checkpoints_v5_mlp/qmix_ep1000.pt
+[mlp] Episode  1100 | ε=0.835 | 平均奖励= 192.40 | 平均送达=20.79
+[mlp] Episode  1200 | ε=0.820 | 平均奖励= 194.70 | 平均送达=21.03
+  → 已保存: checkpoints_v5_mlp/qmix_ep1200.pt
+[mlp] Episode  1300 | ε=0.805 | 平均奖励= 191.90 | 平均送达=20.74
+[mlp] Episode  1400 | ε=0.790 | 平均奖励= 191.30 | 平均送达=20.67
+  → 已保存: checkpoints_v5_mlp/qmix_ep1400.pt
+[mlp] Episode  1500 | ε=0.775 | 平均奖励= 181.80 | 平均送达=19.75
+[mlp] Episode  1600 | ε=0.760 | 平均奖励= 197.10 | 平均送达=21.27
+  → 已保存: checkpoints_v5_mlp/qmix_ep1600.pt
+[mlp] Episode  1700 | ε=0.745 | 平均奖励= 195.90 | 平均送达=21.17
+[mlp] Episode  1800 | ε=0.730 | 平均奖励= 198.10 | 平均送达=21.37
+  → 已保存: checkpoints_v5_mlp/qmix_ep1800.pt
+[mlp] Episode  1900 | ε=0.715 | 平均奖励= 194.60 | 平均送达=21.01
+[mlp] Episode  2000 | ε=0.700 | 平均奖励= 202.10 | 平均送达=21.78
+  → 已保存: checkpoints_v5_mlp/qmix_ep2000.pt
+[mlp] Episode  2100 | ε=0.685 | 平均奖励= 195.30 | 平均送达=21.09
+[mlp] Episode  2200 | ε=0.670 | 平均奖励= 179.20 | 平均送达=19.52
+  → 已保存: checkpoints_v5_mlp/qmix_ep2200.pt
+[mlp] Episode  2300 | ε=0.655 | 平均奖励= 180.30 | 平均送达=19.57
+[mlp] Episode  2400 | ε=0.640 | 平均奖励= 184.20 | 平均送达=19.97
+  → 已保存: checkpoints_v5_mlp/qmix_ep2400.pt
+[mlp] Episode  2500 | ε=0.625 | 平均奖励= 200.40 | 平均送达=21.59
+[mlp] Episode  2600 | ε=0.610 | 平均奖励= 176.30 | 平均送达=19.19
+  → 已保存: checkpoints_v5_mlp/qmix_ep2600.pt
+[mlp] Episode  2700 | ε=0.595 | 平均奖励= 181.10 | 平均送达=19.65

@@ -1,0 +1,66 @@
+<launch>
+
+  <!-- 专用于标注航点，不运行测试脚本
+       完成后用 rosrun waterplus_map_tools wp_saver 保存到 ~/waypoints.xml -->
+
+  <!-- ── Gazebo ─────────────────────────────────────────────────── -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name"   value="$(find wpb_mani_simulator)/worlds/warehouse_cross.world"/>
+    <arg name="paused"       value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui"          value="true"/>
+    <arg name="recording"    value="false"/>
+    <arg name="debug"        value="false"/>
+  </include>
+
+  <!-- ── 机器人（起点 (-2.0,-7.0)，面朝北 Y=1.5707）─────────────── -->
+  <param name="robot_description"
+         command="$(find xacro)/xacro --inorder $(find wpb_mani_description)/urdf/wpb_mani.urdf.xacro"/>
+  <node name="spawn_robot" pkg="gazebo_ros" type="spawn_model"
+        args="-param robot_description -urdf -x -2.0 -y -7.0 -z 0.0 -Y 1.5707 -model wpb_mani"
+        output="screen"/>
+
+  <include file="$(find wpb_mani_simulator)/launch/wpb_mani_controllers.launch"/>
+
+  <node pkg="wpb_mani_simulator" type="wpb_mani_sim_lidar_filter"
+        name="wpb_mani_sim_lidar_filter" output="screen">
+    <param name="pub_topic" value="/scan"/>
+  </node>
+
+  <!-- ── 地图 + 定位 + 导航 ─────────────────────────────────────── -->
+  <node name="map_server" pkg="map_server" type="map_server"
+        args="$(find warehouse_qmix)/maps/warehouse_cross.yaml" output="screen"/>
+
+  <include file="$(find wpb_mani_tutorials)/nav_lidar/amcl_omni.launch"/>
+  <!-- 初始位姿与 Gazebo 机器人起点一致，无需手动 2D Pose Estimate -->
+  <param name="amcl/initial_pose_x" value="-2.0"/>
+  <param name="amcl/initial_pose_y" value="-7.0"/>
+  <param name="amcl/initial_pose_a" value="1.5707"/>
+
+  <node pkg="move_base" type="move_base" name="move_base" respawn="false" output="screen">
+    <rosparam file="$(find warehouse_qmix)/nav_config/costmap_common.yaml"
+              command="load" ns="global_costmap"/>
+    <rosparam file="$(find warehouse_qmix)/nav_config/costmap_common.yaml"
+              command="load" ns="local_costmap"/>
+    <rosparam file="$(find warehouse_qmix)/nav_config/local_costmap.yaml"  command="load"/>
+    <rosparam file="$(find warehouse_qmix)/nav_config/global_costmap.yaml" command="load"/>
+    <param name="base_global_planner"  value="global_planner/GlobalPlanner"/>
+    <param name="use_dijkstra"         value="true"/>
+    <param name="base_local_planner"   value="wpb_local_planner/WpbLocalPlanner"/>
+    <param name="controller_frequency" value="10" type="double"/>
+  </node>
+
+  <!-- ── 航点编辑器 ──────────────────────────────────────────────── -->
+  <node pkg="waterplus_map_tools" type="wp_edit_node"
+        name="wp_edit_node" output="screen"/>
+
+  <!-- ── 货架标记发布（让 RViz 显示货架和投递区位置）──────────────── -->
+  <node name="shelf_marker_pub" pkg="warehouse_qmix" type="shelf_marker_pub.py"
+        output="screen"/>
+
+  <!-- ── RViz（含 Add Waypoint 工具 + 货架标记显示）──────────────── -->
+  <node name="rviz" pkg="rviz" type="rviz"
+        args="-d $(find warehouse_qmix)/rviz/add_waypoints.rviz"
+        required="true" output="screen"/>
+
+</launch>

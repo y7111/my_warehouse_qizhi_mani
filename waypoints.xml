@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  warehouse_cross waypoints (WP1-WP13)
+
+  WP1-10: 各货架的机器人站立点（在货架旁1m的走廊内）
+  WP11-13: 投递区A/B/C
+
+  坐标对应关系：
+    WP1  → 货架0 (-1.5, 6.5)  机器人停在货架南侧 (-1.5, 5.5) 朝北
+    WP2  → 货架1 ( 1.5, 6.5)  机器人停在货架南侧 ( 1.5, 5.5) 朝北
+    WP3  → 货架2 (-8.5, 1.5)  机器人停在货架东侧 (-7.5, 1.5) 朝西
+    WP4  → 货架3 (-5.5, 1.5)  机器人停在货架东侧 (-4.5, 1.5) 朝西
+    WP5  → 货架4 (-8.5,-0.5)  机器人停在货架东侧 (-7.5,-0.5) 朝西
+    WP6  → 货架5 (-5.5,-0.5)  机器人停在货架东侧 (-4.5,-0.5) 朝西
+    WP7  → 货架6 ( 5.5, 1.5)  机器人停在货架西侧 ( 4.5, 1.5) 朝东
+    WP8  → 货架7 ( 8.5, 1.5)  机器人停在货架西侧 ( 7.5, 1.5) 朝东
+    WP9  → 货架8 ( 5.5,-0.5)  机器人停在货架西侧 ( 4.5,-0.5) 朝东
+    WP10 → 货架9 ( 8.5,-0.5)  机器人停在货架西侧 ( 7.5,-0.5) 朝东
+    WP11 → 投递区A (-2.5,-5.5) 朝南
+    WP12 → 投递区B (-0.5,-5.5) 朝南
+    WP13 → 投递区C ( 1.5,-5.5) 朝南
+-->
+<Waterplus>
+
+  <!-- WP1: 货架0 南侧  yaw=PI/2 (朝北) -->
+  <Waypoint>
+    <Name>1</Name>
+    <Pos_x>-1.5</Pos_x>
+    <Pos_y>5.5</Pos_y>
+    <Pos_z>0</Pos_z>
+    <Ori_x>0</Ori_x>
+    <Ori_y>0</Ori_y>
+    <Ori_z>0.7071</Ori_z>
+    <Ori_w>0.7071</Ori_w>
+  </Waypoint>
+
+  <!-- WP2: 货架1 南侧  yaw=PI/2 (朝北) -->
+  <Waypoint>
+    <Name>2</Name>
+    <Pos_x>1.5</Pos_x>
+    <Pos_y>5.5</Pos_y>
+    <Pos_z>0</Pos_z>
+    <Ori_x>0</Ori_x>
+    <Ori_y>0</Ori_y>
+    <Ori_z>0.7071</Ori_z>
+    <Ori_w>0.7071</Ori_w>
+  </Waypoint>
+
+  <!-- WP3: 货架2 东侧  yaw=PI (朝西) -->
+  <Waypoint>
+    <Name>3</Name>
+    <Pos_x>-7.5</Pos_x>
+    <Pos_y>1.5</Pos_y>
+    <Pos_z>0</Pos_z>
+    <Ori_x>0</Ori_x>
+    <Ori_y>0</Ori_y>
+    <Ori_z>1.0</Ori_z>
+    <Ori_w>0.0</Ori_w>
+  </Waypoint>
+
+  <!-- WP4: 货架3 东侧  yaw=PI (朝西) -->
+  <Waypoint>
+    <Name>4</Name>
+    <Pos_x>-4.5</Pos_x>
+    <Pos_y>1.5</Pos_y>
+    <Pos_z>0</Pos_z>
+    <Ori_x>0</Ori_x>
+    <Ori_y>0</Ori_y>
+    <Ori_z>1.0</Ori_z>
+    <Ori_w>0.0</Ori_w>
+  </Waypoint>
+
+  <!-- WP5: 货架4 东侧  yaw=PI (朝西) -->
+  <Waypoint>
+    <Name>5</Name>
+    <Pos_x>-7.5</Pos_x>
+    <Pos_y>-0.5</Pos_y>
+    <Pos_z>0</Pos_z>
+    <Ori_x>0</Ori_x>
+    <Ori_y>0</Ori_y>
+    <Ori_z>1.0</Ori_z>
+    <Ori_w>0.0</Ori_w>
+  </Waypoint>
+
+  <!-- WP6: 货架5 东侧  yaw=PI (朝西) -->
+  <Waypoint>
+    <Name>6</Name>
+    <Pos_x>-4.5</Pos_x>
+    <Pos_y>-0.5</Pos_y>
+    <Pos_z>0</Pos_z>
+    <Ori_x>0</Ori_x>
+    <Ori_y>0</Ori_y>
+    <Ori_z>1.0</Ori_z>
+    <Ori_w>0.0</Ori_w>
+  </Waypoint>
+
+  <!-- WP7: 货架6 西侧  yaw=0 (朝东) -->
+  <Waypoint>
+    <Name>7</Name>
+    <Pos_x>4.5</Pos_x>
+    <Pos_y>1.5</Pos_y>
+    <Pos_z>0</Pos_z>
+    <Ori_x>0</Ori_x>
+    <Ori_y>0</Ori_y>
+    <Ori_z>0.0</Ori_z>
+    <Ori_w>1.0</Ori_w>
+  </Waypoint>
+
+  <!-- WP8: 货架7 西侧  yaw=0 (朝东) -->
+  <Waypoint>
+    <Name>8</Name>
+    <Pos_x>7.5</Pos_x>
+    <Pos_y>1.5</Pos_y>
+    <Pos_z>0</Pos_z>
+    <Ori_x>0</Ori_x>
+    <Ori_y>0</Ori_y>
+    <Ori_z>0.0</Ori_z>
+    <Ori_w>1.0</Ori_w>
+  </Waypoint>
+
+  <!-- WP9: 货架8 西侧  yaw=0 (朝东) -->
+  <Waypoint>
+    <Name>9</Name>
+    <Pos_x>4.5</Pos_x>
+    <Pos_y>-0.5</Pos_y>
+    <Pos_z>0</Pos_z>
+    <Ori_x>0</Ori_x>
+    <Ori_y>0</Ori_y>
+    <Ori_z>0.0</Ori_z>
+    <Ori_w>1.0</Ori_w>
+  </Waypoint>
+
+  <!-- WP10: 货架9 西侧  yaw=0 (朝东) -->
+  <Waypoint>
+    <Name>10</Name>
+    <Pos_x>7.5</Pos_x>
+    <Pos_y>-0.5</Pos_y>
+    <Pos_z>0</Pos_z>
+    <Ori_x>0</Ori_x>
+    <Ori_y>0</Ori_y>
+    <Ori_z>0.0</Ori_z>
+    <Ori_w>1.0</Ori_w>
+  </Waypoint>
+
+  <!-- WP11: 投递区A  yaw=-PI/2 (朝南) -->
+  <Waypoint>
+    <Name>11</Name>
+    <Pos_x>-2.5</Pos_x>
+    <Pos_y>-5.5</Pos_y>
+    <Pos_z>0</Pos_z>
+    <Ori_x>0</Ori_x>
+    <Ori_y>0</Ori_y>
+    <Ori_z>-0.7071</Ori_z>
+    <Ori_w>0.7071</Ori_w>
+  </Waypoint>
+
+  <!-- WP12: 投递区B  yaw=-PI/2 (朝南) -->
+  <Waypoint>
+    <Name>12</Name>
+    <Pos_x>-0.5</Pos_x>
+    <Pos_y>-5.5</Pos_y>
+    <Pos_z>0</Pos_z>
+    <Ori_x>0</Ori_x>
+    <Ori_y>0</Ori_y>
+    <Ori_z>-0.7071</Ori_z>
+    <Ori_w>0.7071</Ori_w>
+  </Waypoint>
+
+  <!-- WP13: 投递区C  yaw=-PI/2 (朝南) -->
+  <Waypoint>
+    <Name>13</Name>
+    <Pos_x>1.5</Pos_x>
+    <Pos_y>-5.5</Pos_y>
+    <Pos_z>0</Pos_z>
+    <Ori_x>0</Ori_x>
+    <Ori_y>0</Ori_y>
+    <Ori_z>-0.7071</Ori_z>
+    <Ori_w>0.7071</Ori_w>
+  </Waypoint>
+
+  <!-- WP14: 进站点（底部左缝，单行向下进投递区）格(12,8)  yaw=-PI/2 朝南 -->
+  <Waypoint>
+    <Name>14</Name>
+    <Pos_x>-1.5</Pos_x>
+    <Pos_y>-4.5</Pos_y>
+    <Pos_z>0</Pos_z>
+    <Ori_x>0</Ori_x>
+    <Ori_y>0</Ori_y>
+    <Ori_z>-0.7071</Ori_z>
+    <Ori_w>0.7071</Ori_w>
+  </Waypoint>
+
+  <!-- WP15: 出站点底（右缝下端，离开投递区第一步）格(12,12)  yaw=PI/2 朝北 -->
+  <Waypoint>
+    <Name>15</Name>
+    <Pos_x>2.5</Pos_x>
+    <Pos_y>-4.5</Pos_y>
+    <Pos_z>0</Pos_z>
+    <Ori_x>0</Ori_x>
+    <Ori_y>0</Ori_y>
+    <Ori_z>0.7071</Ori_z>
+    <Ori_w>0.7071</Ori_w>
+  </Waypoint>
+
+  <!-- WP16: 进站点顶（左缝上端，进投递区第一步，锁死左缝下行）格(10,8)  yaw=-PI/2 朝南 -->
+  <Waypoint>
+    <Name>16</Name>
+    <Pos_x>-1.5</Pos_x>
+    <Pos_y>-2.5</Pos_y>
+    <Pos_z>0</Pos_z>
+    <Ori_x>0</Ori_x>
+    <Ori_y>0</Ori_y>
+    <Ori_z>-0.7071</Ori_z>
+    <Ori_w>0.7071</Ori_w>
+  </Waypoint>
+
+  <!-- WP17: 出站点顶（右缝上端，离开投递区第二步，锁死右缝上行）格(10,12)  yaw=PI/2 朝北 -->
+  <Waypoint>
+    <Name>17</Name>
+    <Pos_x>2.5</Pos_x>
+    <Pos_y>-2.5</Pos_y>
+    <Pos_z>0</Pos_z>
+    <Ori_x>0</Ori_x>
+    <Ori_y>0</Ori_y>
+    <Ori_z>0.7071</Ori_z>
+    <Ori_w>0.7071</Ori_w>
+  </Waypoint>
+
+</Waterplus>

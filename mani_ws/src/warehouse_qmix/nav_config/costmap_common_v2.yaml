@@ -1,0 +1,23 @@
+obstacle_range: 4.0
+raytrace_range: 4.0
+robot_radius: 0.25
+inflation_radius: 0.45
+cost_scaling_factor: 10.0
+
+observation_sources: scan robots
+scan:
+  data_type: LaserScan
+  topic: scan_fixed
+  marking: true
+  clearing: true
+# 虚拟邻车雷达：把其它车喂进代价地图，让 DWA 能看见并避开别的车
+robots:
+  data_type: LaserScan
+  topic: neighbor_scan
+  marking: true
+  clearing: true
+  obstacle_range: 5.0
+  raytrace_range: 5.5
+  min_obstacle_height: -0.1
+  max_obstacle_height: 2.0
+  expected_update_rate: 0.5

@@ -1,0 +1,126 @@
+<launch>
+
+  <!-- ── Gazebo ──────────────────────────────────────────────────── -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name"   value="$(find wpb_mani_simulator)/worlds/warehouse_cross_demo.world"/>
+    <arg name="paused"       value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui"          value="true"/>
+    <arg name="recording"    value="false"/>
+    <arg name="debug"        value="false"/>
+  </include>
+
+  <!-- ── 地图服务 ───────────────────────────────────────────────── -->
+  <node name="map_server" pkg="map_server" type="map_server"
+        args="$(find warehouse_qmix)/maps/warehouse_cross.yaml"
+        output="screen"/>
+
+  <!-- ── 货架标记（可选）────────────────────────────────────────── -->
+  <node name="shelf_marker_pub" pkg="warehouse_qmix" type="shelf_marker_pub.py"
+        output="screen"/>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- robot_0  展示位: WP5 西侧货架 (-7.54, -0.50)  朝东           -->
+  <!-- 完整实车模型: 底盘+麦轮+机械臂+Kinect                         -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <group ns="robot_0">
+    <param name="tf_prefix" value="robot_0"/>
+    <param name="robot_description"
+           command="$(find xacro)/xacro --inorder
+                    $(find wpb_mani_description)/urdf/wpb_mani.urdf.xacro
+                    robot_ns:=robot_0 use_planar:=true"/>
+    <node name="robot_state_publisher" pkg="robot_state_publisher"
+          type="robot_state_publisher" output="screen">
+      <param name="tf_prefix" value="robot_0"/>
+    </node>
+    <node name="joint_state_publisher" pkg="joint_state_publisher"
+          type="joint_state_publisher" output="screen"/>
+  </group>
+  <!-- map → robot_0/odom (固定在原点) -->
+  <node pkg="tf" type="static_transform_publisher" name="map_r0_odom"
+        args="0 0 0 0 0 0 map robot_0/odom 50"/>
+  <!-- robot_0/odom → robot_0/base_footprint (展示位置, yaw=0 朝东) -->
+  <node pkg="tf" type="static_transform_publisher" name="r0_odom_base"
+        args="-7.54 -0.50 0.0 0.0 0.0 0.0 robot_0/odom robot_0/base_footprint 50"/>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- robot_1  展示位: WP8 东侧货架 (7.57, 1.53)   朝西            -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <group ns="robot_1">
+    <param name="tf_prefix" value="robot_1"/>
+    <param name="robot_description"
+           command="$(find xacro)/xacro --inorder
+                    $(find wpb_mani_description)/urdf/wpb_mani.urdf.xacro
+                    robot_ns:=robot_1 use_planar:=true"/>
+    <node name="robot_state_publisher" pkg="robot_state_publisher"
+          type="robot_state_publisher" output="screen">
+      <param name="tf_prefix" value="robot_1"/>
+    </node>
+    <node name="joint_state_publisher" pkg="joint_state_publisher"
+          type="joint_state_publisher" output="screen"/>
+  </group>
+  <node pkg="tf" type="static_transform_publisher" name="map_r1_odom"
+        args="0 0 0 0 0 0 map robot_1/odom 50"/>
+  <!-- yaw=π → static_transform_publisher 用 yaw pitch roll，yaw=3.14159 -->
+  <node pkg="tf" type="static_transform_publisher" name="r1_odom_base"
+        args="7.57 1.53 0.0 3.14159 0.0 0.0 robot_1/odom robot_1/base_footprint 50"/>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- robot_2  展示位: 走廊中段 (0.00, 2.50)        朝南            -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <group ns="robot_2">
+    <param name="tf_prefix" value="robot_2"/>
+    <param name="robot_description"
+           command="$(find xacro)/xacro --inorder
+                    $(find wpb_mani_description)/urdf/wpb_mani.urdf.xacro
+                    robot_ns:=robot_2 use_planar:=true"/>
+    <node name="robot_state_publisher" pkg="robot_state_publisher"
+          type="robot_state_publisher" output="screen">
+      <param name="tf_prefix" value="robot_2"/>
+    </node>
+    <node name="joint_state_publisher" pkg="joint_state_publisher"
+          type="joint_state_publisher" output="screen"/>
+  </group>
+  <node pkg="tf" type="static_transform_publisher" name="map_r2_odom"
+        args="0 0 0 0 0 0 map robot_2/odom 50"/>
+  <!-- yaw=-π/2=-1.5708 朝南 (向投递区行进) -->
+  <node pkg="tf" type="static_transform_publisher" name="r2_odom_base"
+        args="0.0 2.50 0.0 -1.5708 0.0 0.0 robot_2/odom robot_2/base_footprint 50"/>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- robot_3  展示位: WP12 投递区 (-0.60, -4.49)   朝西北          -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <group ns="robot_3">
+    <param name="tf_prefix" value="robot_3"/>
+    <param name="robot_description"
+           command="$(find xacro)/xacro --inorder
+                    $(find wpb_mani_description)/urdf/wpb_mani.urdf.xacro
+                    robot_ns:=robot_3 use_planar:=true"/>
+    <node name="robot_state_publisher" pkg="robot_state_publisher"
+          type="robot_state_publisher" output="screen">
+      <param name="tf_prefix" value="robot_3"/>
+    </node>
+    <node name="joint_state_publisher" pkg="joint_state_publisher"
+          type="joint_state_publisher" output="screen"/>
+  </group>
+  <node pkg="tf" type="static_transform_publisher" name="map_r3_odom"
+        args="0 0 0 0 0 0 map robot_3/odom 50"/>
+  <!-- yaw=3π/4=2.3562 朝西北 -->
+  <node pkg="tf" type="static_transform_publisher" name="r3_odom_base"
+        args="-0.60 -4.49 0.0 2.3562 0.0 0.0 robot_3/odom robot_3/base_footprint 50"/>
+
+  <!-- ── 路径标记发布（独立运行，不依赖 Gazebo）──────────────── -->
+  <node name="path_marker_pub" pkg="warehouse_qmix" type="path_marker_pub.py"
+        output="screen"/>
+
+  <!-- ── demo_setup: 仅负责传送 Gazebo 中的机器人 ─────────────── -->
+  <!-- sleep 12s 等 Gazebo 完全加载后再传送 -->
+  <node name="demo_setup" pkg="warehouse_qmix" type="demo_setup.py"
+        output="screen"
+        launch-prefix="bash -c 'sleep 12; $0 $@'"/>
+
+  <!-- ── RViz ──────────────────────────────────────────────────── -->
+  <node name="rviz" pkg="rviz" type="rviz" output="screen"
+        args="-d $(find warehouse_qmix)/config/demo.rviz"/>
+
+</launch>

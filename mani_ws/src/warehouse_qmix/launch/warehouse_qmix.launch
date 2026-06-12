@@ -1,0 +1,76 @@
+<launch>
+
+  <!-- ── 四车 Gazebo + AMCL + move_base（v2：改进DWA避障权重）──────── -->
+  <include file="$(find warehouse_qmix)/launch/warehouse_multi_v2.launch"/>
+
+  <!-- ── 航点管理器（全局，加载 ~/waypoints.xml）─────────────────── -->
+  <node pkg="waterplus_map_tools" type="wp_manager" name="wp_manager"
+        output="screen">
+    <param name="load" value="/home/jasper/waypoints.xml"/>
+  </node>
+
+  <!-- ── 四车航点导航服务器（各在自己 ns 下）──────────────────────── -->
+  <group ns="robot_0">
+    <node pkg="waterplus_map_tools" type="wp_navi_server" name="wp_navi_server"
+          output="screen">
+      <!-- wp_manager 的服务在全局 ns，需要绝对路径 -->
+      <remap from="waterplus/get_waypoint_name" to="/waterplus/get_waypoint_name"/>
+    </node>
+  </group>
+
+  <group ns="robot_1">
+    <node pkg="waterplus_map_tools" type="wp_navi_server" name="wp_navi_server"
+          output="screen">
+      <remap from="waterplus/get_waypoint_name" to="/waterplus/get_waypoint_name"/>
+    </node>
+  </group>
+
+  <group ns="robot_2">
+    <node pkg="waterplus_map_tools" type="wp_navi_server" name="wp_navi_server"
+          output="screen">
+      <remap from="waterplus/get_waypoint_name" to="/waterplus/get_waypoint_name"/>
+    </node>
+  </group>
+
+  <group ns="robot_3">
+    <node pkg="waterplus_map_tools" type="wp_navi_server" name="wp_navi_server"
+          output="screen">
+      <remap from="waterplus/get_waypoint_name" to="/waterplus/get_waypoint_name"/>
+    </node>
+  </group>
+
+  <!-- ── RViz ──────────────────────────────────────────────────────────── -->
+  <node name="rviz" pkg="rviz" type="rviz"
+        args="-d $(find warehouse_qmix)/rviz/four_robots_nav.rviz"
+        output="screen"/>
+
+  <!-- ── 货物管理器（全局）────────────────────────────────────────── -->
+  <node name="cargo_manager" pkg="warehouse_qmix" type="cargo_manager.py"
+        output="screen"/>
+
+  <!-- ── 虚拟邻车雷达（全局）：把各车喂进彼此代价地图，DWA 才能避开别的车 ── -->
+  <node name="neighbor_laser_pub" pkg="warehouse_qmix" type="neighbor_laser_pub.py"
+        output="screen"/>
+
+  <!-- ── QMIX 推理代理，各延迟 10s 等待导航栈就绪 ──────────────────── -->
+  <node name="robot_agent_0" pkg="warehouse_qmix" type="robot_agent.py"
+        output="screen" launch-prefix="bash -c 'sleep 10; $0 $@'">
+    <param name="robot_id" value="0"/>
+  </node>
+
+  <node name="robot_agent_1" pkg="warehouse_qmix" type="robot_agent.py"
+        output="screen" launch-prefix="bash -c 'sleep 10; $0 $@'">
+    <param name="robot_id" value="1"/>
+  </node>
+
+  <node name="robot_agent_2" pkg="warehouse_qmix" type="robot_agent.py"
+        output="screen" launch-prefix="bash -c 'sleep 10; $0 $@'">
+    <param name="robot_id" value="2"/>
+  </node>
+
+  <node name="robot_agent_3" pkg="warehouse_qmix" type="robot_agent.py"
+        output="screen" launch-prefix="bash -c 'sleep 10; $0 $@'">
+    <param name="robot_id" value="3"/>
+  </node>
+
+</launch>
