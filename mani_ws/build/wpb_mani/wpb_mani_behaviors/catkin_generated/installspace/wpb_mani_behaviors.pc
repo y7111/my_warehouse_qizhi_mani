@@ -1,0 +1,8 @@
+prefix=/home/jasper/mani_ws/install
+
+Name: wpb_mani_behaviors
+Description: Description of wpb_mani_behaviors
+Version: 0.0.1
+Cflags: -I${prefix}/include
+Libs: -L${prefix}/lib 
+Requires: roscpp rospy std_msgs message_runtime

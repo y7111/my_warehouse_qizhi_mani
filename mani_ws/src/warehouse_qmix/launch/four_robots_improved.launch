@@ -1,0 +1,57 @@
+<launch>
+
+  <!--
+    四车改进版：含货架的静态地图 + 更强避障权重
+    地图：warehouse_cross_shelves.pgm（货架已写入静态地图）
+    DWA：occdist_scale=0.12，path_distance_bias=20（原版 0.02/32）
+    使用：roslaunch warehouse_qmix four_robots_improved.launch
+  -->
+
+  <!-- ── 四车 Gazebo + AMCL + move_base（新地图+新DWA）──────────────── -->
+  <include file="$(find warehouse_qmix)/launch/warehouse_multi_v2.launch"/>
+
+  <!-- ── 全局航点管理器（复用原有 waypoints.xml）──────────────────────── -->
+  <node pkg="waterplus_map_tools" type="wp_manager" name="wp_manager"
+        output="screen">
+    <param name="load" value="/home/jasper/waypoints.xml"/>
+  </node>
+
+  <!-- ── 四车航点导航服务器 ───────────────────────────────────────────── -->
+  <group ns="robot_0">
+    <node pkg="waterplus_map_tools" type="wp_navi_server" name="wp_navi_server"
+          output="screen">
+      <remap from="waterplus/get_waypoint_name" to="/waterplus/get_waypoint_name"/>
+    </node>
+  </group>
+
+  <group ns="robot_1">
+    <node pkg="waterplus_map_tools" type="wp_navi_server" name="wp_navi_server"
+          output="screen">
+      <remap from="waterplus/get_waypoint_name" to="/waterplus/get_waypoint_name"/>
+    </node>
+  </group>
+
+  <group ns="robot_2">
+    <node pkg="waterplus_map_tools" type="wp_navi_server" name="wp_navi_server"
+          output="screen">
+      <remap from="waterplus/get_waypoint_name" to="/waterplus/get_waypoint_name"/>
+    </node>
+  </group>
+
+  <group ns="robot_3">
+    <node pkg="waterplus_map_tools" type="wp_navi_server" name="wp_navi_server"
+          output="screen">
+      <remap from="waterplus/get_waypoint_name" to="/waterplus/get_waypoint_name"/>
+    </node>
+  </group>
+
+  <!-- ── RViz ──────────────────────────────────────────────────────────── -->
+  <node name="rviz" pkg="rviz" type="rviz"
+        args="-d $(find warehouse_qmix)/rviz/four_robots_nav.rviz"
+        output="screen"/>
+
+  <!-- ── 四车巡航脚本（含卡住脱困，延迟10s等待就绪）─────────────────── -->
+  <node name="test_four_wp" pkg="warehouse_qmix" type="test_four_wp.py"
+        output="screen" launch-prefix="bash -c 'sleep 10; $0 $@'"/>
+
+</launch>

@@ -1,0 +1,271 @@
+<launch>
+
+  <!-- ── Gazebo ─────────────────────────────────────────────────── -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name"   value="$(find wpb_mani_simulator)/worlds/warehouse_cross_multi.world"/>
+    <arg name="paused"       value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui"          value="true"/>
+    <arg name="recording"    value="false"/>
+    <arg name="debug"        value="false"/>
+  </include>
+
+  <!-- ── 地图服务（全局共享）────────────────────────────────────── -->
+  <node name="map_server" pkg="map_server" type="map_server"
+        args="$(find warehouse_qmix)/maps/warehouse_cross.yaml"
+        output="screen"/>
+
+  <!-- ── 货架标记（RViz 可视化）──────────────────────────────── -->
+  <node name="shelf_marker_pub" pkg="warehouse_qmix" type="shelf_marker_pub.py"
+        output="screen"/>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- robot_0  起点 (-1.5, -7.0) 朝北                          -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <group ns="robot_0">
+    <param name="tf_prefix" value="robot_0"/>
+    <param name="robot_description"
+           command="$(find xacro)/xacro --inorder
+                    $(find warehouse_qmix)/urdf/agv_nav.urdf.xacro
+                    robot_ns:=robot_0"/>
+
+    <node name="robot_state_publisher" pkg="robot_state_publisher"
+          type="robot_state_publisher" output="screen">
+      <param name="tf_prefix" value="robot_0"/>
+    </node>
+    <node name="joint_state_publisher" pkg="joint_state_publisher"
+          type="joint_state_publisher" output="screen"/>
+
+    <!-- odom TF 来源：odom_tf_pub.py（planar_move broadcastTF 在 world 嵌入模式下无效） -->
+    <node name="odom_tf_pub" pkg="warehouse_qmix" type="odom_tf_pub.py"
+          output="screen"/>
+
+    <!-- lidar filter: remap 硬编码的 /scan_raw → /robot_0/scan_raw -->
+    <node pkg="wpb_mani_simulator" type="wpb_mani_sim_lidar_filter"
+          name="wpb_mani_sim_lidar_filter" output="screen">
+      <param name="pub_topic" value="scan"/>
+      <remap from="/scan_raw" to="/robot_0/scan_raw"/>
+    </node>
+    <node name="laser_frame_fix" pkg="warehouse_qmix" type="laser_frame_fix.py" output="screen"/>
+
+    <remap from="static_map" to="/static_map"/>
+    <include file="$(find wpb_mani_tutorials)/nav_lidar/amcl_omni.launch"/>
+    <param name="amcl/odom_frame_id"   value="robot_0/odom"/>
+    <param name="amcl/base_frame_id"   value="robot_0/base_footprint"/>
+    <param name="amcl/global_frame_id" value="map"/>
+    <param name="amcl/initial_pose_x"  value="-1.5"/>
+    <param name="amcl/initial_pose_y"  value="-7.0"/>
+    <param name="amcl/initial_pose_a"  value="1.5707"/>
+    <param name="amcl/transform_tolerance" value="0.5"/>
+
+    <node pkg="move_base" type="move_base" name="move_base"
+          respawn="false" output="screen">
+      <remap from="map" to="/map"/>
+      <rosparam file="$(find warehouse_qmix)/nav_config/costmap_common_v2.yaml"
+                command="load" ns="global_costmap"/>
+      <rosparam file="$(find warehouse_qmix)/nav_config/costmap_common_v2.yaml"
+                command="load" ns="local_costmap"/>
+      <!-- 邻车障碍只喂局部代价地图(DWA实时避障)；全局规划只看静态地图。
+           否则多车同抢一个入口航点(如WP16)时，别车障碍盖住共享目标点→全局规划失败 -->
+      <param name="global_costmap/observation_sources" value="scan"/>
+      <rosparam file="$(find warehouse_qmix)/nav_config/local_costmap.yaml"  command="load"/>
+      <rosparam file="$(find warehouse_qmix)/nav_config/global_costmap.yaml" command="load"/>
+      <param name="base_global_planner"  value="global_planner/GlobalPlanner"/>
+      <param name="use_dijkstra"         value="true"/>
+      <param name="base_local_planner"   value="dwa_local_planner/DWAPlannerROS"/>
+      <param name="controller_frequency" value="10" type="double"/>
+      <rosparam file="$(find warehouse_qmix)/nav_config/move_base.yaml" command="load"/>
+      <rosparam file="$(find warehouse_qmix)/nav_config/dwa_local_planner_v2.yaml" command="load"/>
+      <param name="global_costmap/robot_base_frame" value="robot_0/base_footprint"/>
+      <param name="local_costmap/robot_base_frame"  value="robot_0/base_footprint"/>
+      <param name="local_costmap/global_frame"      value="robot_0/odom"/>
+    </node>
+  </group>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- robot_1  起点 (-0.5, -7.0) 朝北                          -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <group ns="robot_1">
+    <param name="tf_prefix" value="robot_1"/>
+    <param name="robot_description"
+           command="$(find xacro)/xacro --inorder
+                    $(find warehouse_qmix)/urdf/agv_nav.urdf.xacro
+                    robot_ns:=robot_1"/>
+
+    <node name="robot_state_publisher" pkg="robot_state_publisher"
+          type="robot_state_publisher" output="screen">
+      <param name="tf_prefix" value="robot_1"/>
+    </node>
+    <node name="joint_state_publisher" pkg="joint_state_publisher"
+          type="joint_state_publisher" output="screen"/>
+
+    <!-- odom TF 来源：odom_tf_pub.py（planar_move broadcastTF 在 world 嵌入模式下无效） -->
+    <node name="odom_tf_pub" pkg="warehouse_qmix" type="odom_tf_pub.py"
+          output="screen"/>
+
+    <node pkg="wpb_mani_simulator" type="wpb_mani_sim_lidar_filter"
+          name="wpb_mani_sim_lidar_filter" output="screen">
+      <param name="pub_topic" value="scan"/>
+      <remap from="/scan_raw" to="/robot_1/scan_raw"/>
+    </node>
+    <node name="laser_frame_fix" pkg="warehouse_qmix" type="laser_frame_fix.py" output="screen"/>
+
+    <remap from="static_map" to="/static_map"/>
+    <include file="$(find wpb_mani_tutorials)/nav_lidar/amcl_omni.launch"/>
+    <param name="amcl/odom_frame_id"   value="robot_1/odom"/>
+    <param name="amcl/base_frame_id"   value="robot_1/base_footprint"/>
+    <param name="amcl/global_frame_id" value="map"/>
+    <param name="amcl/initial_pose_x"  value="-0.5"/>
+    <param name="amcl/initial_pose_y"  value="-7.0"/>
+    <param name="amcl/initial_pose_a"  value="1.5707"/>
+    <param name="amcl/transform_tolerance" value="0.5"/>
+
+    <node pkg="move_base" type="move_base" name="move_base"
+          respawn="false" output="screen">
+      <remap from="map" to="/map"/>
+      <rosparam file="$(find warehouse_qmix)/nav_config/costmap_common_v2.yaml"
+                command="load" ns="global_costmap"/>
+      <rosparam file="$(find warehouse_qmix)/nav_config/costmap_common_v2.yaml"
+                command="load" ns="local_costmap"/>
+      <!-- 邻车障碍只喂局部代价地图(DWA实时避障)；全局规划只看静态地图。
+           否则多车同抢一个入口航点(如WP16)时，别车障碍盖住共享目标点→全局规划失败 -->
+      <param name="global_costmap/observation_sources" value="scan"/>
+      <rosparam file="$(find warehouse_qmix)/nav_config/local_costmap.yaml"  command="load"/>
+      <rosparam file="$(find warehouse_qmix)/nav_config/global_costmap.yaml" command="load"/>
+      <param name="base_global_planner"  value="global_planner/GlobalPlanner"/>
+      <param name="use_dijkstra"         value="true"/>
+      <param name="base_local_planner"   value="dwa_local_planner/DWAPlannerROS"/>
+      <param name="controller_frequency" value="10" type="double"/>
+      <rosparam file="$(find warehouse_qmix)/nav_config/move_base.yaml" command="load"/>
+      <rosparam file="$(find warehouse_qmix)/nav_config/dwa_local_planner_v2.yaml" command="load"/>
+      <param name="global_costmap/robot_base_frame" value="robot_1/base_footprint"/>
+      <param name="local_costmap/robot_base_frame"  value="robot_1/base_footprint"/>
+      <param name="local_costmap/global_frame"      value="robot_1/odom"/>
+    </node>
+  </group>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- robot_2  起点 (0.5, -7.0) 朝北                           -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <group ns="robot_2">
+    <param name="tf_prefix" value="robot_2"/>
+    <param name="robot_description"
+           command="$(find xacro)/xacro --inorder
+                    $(find warehouse_qmix)/urdf/agv_nav.urdf.xacro
+                    robot_ns:=robot_2"/>
+
+    <node name="robot_state_publisher" pkg="robot_state_publisher"
+          type="robot_state_publisher" output="screen">
+      <param name="tf_prefix" value="robot_2"/>
+    </node>
+    <node name="joint_state_publisher" pkg="joint_state_publisher"
+          type="joint_state_publisher" output="screen"/>
+
+    <!-- odom TF 来源：odom_tf_pub.py（planar_move broadcastTF 在 world 嵌入模式下无效） -->
+    <node name="odom_tf_pub" pkg="warehouse_qmix" type="odom_tf_pub.py"
+          output="screen"/>
+
+    <node pkg="wpb_mani_simulator" type="wpb_mani_sim_lidar_filter"
+          name="wpb_mani_sim_lidar_filter" output="screen">
+      <param name="pub_topic" value="scan"/>
+      <remap from="/scan_raw" to="/robot_2/scan_raw"/>
+    </node>
+    <node name="laser_frame_fix" pkg="warehouse_qmix" type="laser_frame_fix.py" output="screen"/>
+
+    <remap from="static_map" to="/static_map"/>
+    <include file="$(find wpb_mani_tutorials)/nav_lidar/amcl_omni.launch"/>
+    <param name="amcl/odom_frame_id"   value="robot_2/odom"/>
+    <param name="amcl/base_frame_id"   value="robot_2/base_footprint"/>
+    <param name="amcl/global_frame_id" value="map"/>
+    <param name="amcl/initial_pose_x"  value="0.5"/>
+    <param name="amcl/initial_pose_y"  value="-7.0"/>
+    <param name="amcl/initial_pose_a"  value="1.5707"/>
+    <param name="amcl/transform_tolerance" value="0.5"/>
+
+    <node pkg="move_base" type="move_base" name="move_base"
+          respawn="false" output="screen">
+      <remap from="map" to="/map"/>
+      <rosparam file="$(find warehouse_qmix)/nav_config/costmap_common_v2.yaml"
+                command="load" ns="global_costmap"/>
+      <rosparam file="$(find warehouse_qmix)/nav_config/costmap_common_v2.yaml"
+                command="load" ns="local_costmap"/>
+      <!-- 邻车障碍只喂局部代价地图(DWA实时避障)；全局规划只看静态地图。
+           否则多车同抢一个入口航点(如WP16)时，别车障碍盖住共享目标点→全局规划失败 -->
+      <param name="global_costmap/observation_sources" value="scan"/>
+      <rosparam file="$(find warehouse_qmix)/nav_config/local_costmap.yaml"  command="load"/>
+      <rosparam file="$(find warehouse_qmix)/nav_config/global_costmap.yaml" command="load"/>
+      <param name="base_global_planner"  value="global_planner/GlobalPlanner"/>
+      <param name="use_dijkstra"         value="true"/>
+      <param name="base_local_planner"   value="dwa_local_planner/DWAPlannerROS"/>
+      <param name="controller_frequency" value="10" type="double"/>
+      <rosparam file="$(find warehouse_qmix)/nav_config/move_base.yaml" command="load"/>
+      <rosparam file="$(find warehouse_qmix)/nav_config/dwa_local_planner_v2.yaml" command="load"/>
+      <param name="global_costmap/robot_base_frame" value="robot_2/base_footprint"/>
+      <param name="local_costmap/robot_base_frame"  value="robot_2/base_footprint"/>
+      <param name="local_costmap/global_frame"      value="robot_2/odom"/>
+    </node>
+  </group>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- robot_3  起点 (1.5, -7.0) 朝北                           -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <group ns="robot_3">
+    <param name="tf_prefix" value="robot_3"/>
+    <param name="robot_description"
+           command="$(find xacro)/xacro --inorder
+                    $(find warehouse_qmix)/urdf/agv_nav.urdf.xacro
+                    robot_ns:=robot_3"/>
+
+    <node name="robot_state_publisher" pkg="robot_state_publisher"
+          type="robot_state_publisher" output="screen">
+      <param name="tf_prefix" value="robot_3"/>
+    </node>
+    <node name="joint_state_publisher" pkg="joint_state_publisher"
+          type="joint_state_publisher" output="screen"/>
+
+    <!-- odom TF 来源：odom_tf_pub.py（planar_move broadcastTF 在 world 嵌入模式下无效） -->
+    <node name="odom_tf_pub" pkg="warehouse_qmix" type="odom_tf_pub.py"
+          output="screen"/>
+
+    <node pkg="wpb_mani_simulator" type="wpb_mani_sim_lidar_filter"
+          name="wpb_mani_sim_lidar_filter" output="screen">
+      <param name="pub_topic" value="scan"/>
+      <remap from="/scan_raw" to="/robot_3/scan_raw"/>
+    </node>
+    <node name="laser_frame_fix" pkg="warehouse_qmix" type="laser_frame_fix.py" output="screen"/>
+
+    <remap from="static_map" to="/static_map"/>
+    <include file="$(find wpb_mani_tutorials)/nav_lidar/amcl_omni.launch"/>
+    <param name="amcl/odom_frame_id"   value="robot_3/odom"/>
+    <param name="amcl/base_frame_id"   value="robot_3/base_footprint"/>
+    <param name="amcl/global_frame_id" value="map"/>
+    <param name="amcl/initial_pose_x"  value="1.5"/>
+    <param name="amcl/initial_pose_y"  value="-7.0"/>
+    <param name="amcl/initial_pose_a"  value="1.5707"/>
+    <param name="amcl/transform_tolerance" value="0.5"/>
+
+    <node pkg="move_base" type="move_base" name="move_base"
+          respawn="false" output="screen">
+      <remap from="map" to="/map"/>
+      <rosparam file="$(find warehouse_qmix)/nav_config/costmap_common_v2.yaml"
+                command="load" ns="global_costmap"/>
+      <rosparam file="$(find warehouse_qmix)/nav_config/costmap_common_v2.yaml"
+                command="load" ns="local_costmap"/>
+      <!-- 邻车障碍只喂局部代价地图(DWA实时避障)；全局规划只看静态地图。
+           否则多车同抢一个入口航点(如WP16)时，别车障碍盖住共享目标点→全局规划失败 -->
+      <param name="global_costmap/observation_sources" value="scan"/>
+      <rosparam file="$(find warehouse_qmix)/nav_config/local_costmap.yaml"  command="load"/>
+      <rosparam file="$(find warehouse_qmix)/nav_config/global_costmap.yaml" command="load"/>
+      <param name="base_global_planner"  value="global_planner/GlobalPlanner"/>
+      <param name="use_dijkstra"         value="true"/>
+      <param name="base_local_planner"   value="dwa_local_planner/DWAPlannerROS"/>
+      <param name="controller_frequency" value="10" type="double"/>
+      <rosparam file="$(find warehouse_qmix)/nav_config/move_base.yaml" command="load"/>
+      <rosparam file="$(find warehouse_qmix)/nav_config/dwa_local_planner_v2.yaml" command="load"/>
+      <param name="global_costmap/robot_base_frame" value="robot_3/base_footprint"/>
+      <param name="local_costmap/robot_base_frame"  value="robot_3/base_footprint"/>
+      <param name="local_costmap/global_frame"      value="robot_3/odom"/>
+    </node>
+  </group>
+
+</launch>

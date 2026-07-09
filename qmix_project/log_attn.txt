@@ -1,0 +1,16 @@
+[attention] Episode   100 | ε=0.985 | 平均奖励= 197.00 | 平均送达=21.21
+[attention] Episode   200 | ε=0.970 | 平均奖励= 194.60 | 平均送达=20.97
+  → 已保存: checkpoints_v5_attn/qmix_ep200.pt
+[attention] Episode   300 | ε=0.955 | 平均奖励= 201.60 | 平均送达=21.66
+[attention] Episode   400 | ε=0.940 | 平均奖励= 200.50 | 平均送达=21.55
+  → 已保存: checkpoints_v5_attn/qmix_ep400.pt
+[attention] Episode   500 | ε=0.925 | 平均奖励= 180.50 | 平均送达=19.55
+[attention] Episode   600 | ε=0.910 | 平均奖励= 196.20 | 平均送达=21.12
+  → 已保存: checkpoints_v5_attn/qmix_ep600.pt
+[attention] Episode   700 | ε=0.895 | 平均奖励= 201.70 | 平均送达=21.67
+[attention] Episode   800 | ε=0.880 | 平均奖励= 189.80 | 平均送达=20.48
+  → 已保存: checkpoints_v5_attn/qmix_ep800.pt
+[attention] Episode   900 | ε=0.865 | 平均奖励= 199.90 | 平均送达=21.49
+[attention] Episode  1000 | ε=0.850 | 平均奖励= 194.20 | 平均送达=20.92
+  → 已保存: checkpoints_v5_attn/qmix_ep1000.pt
+[attention] Episode  1100 | ε=0.835 | 平均奖励= 181.30 | 平均送达=19.63

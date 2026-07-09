@@ -1,0 +1,8 @@
+prefix=/home/jasper/mani_ws/install
+
+Name: wpb_mani_description
+Description: Description of wpb_mani_description
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

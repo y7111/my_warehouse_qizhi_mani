@@ -1,0 +1,62 @@
+<launch>
+
+  <!--
+    四车航点导航仿真
+    包含：Gazebo + 4×(AMCL + move_base) + wp_manager + 4×wp_navi_server
+    每台机器人循环导航其预设路径，RViz 以不同颜色显示各车
+    使用：roslaunch warehouse_qmix four_robots_wp_nav.launch
+  -->
+
+  <!-- ── 四车 Gazebo + AMCL + move_base ────────────────────────────── -->
+  <include file="$(find warehouse_qmix)/launch/warehouse_multi.launch"/>
+
+  <!-- ── 全局航点管理器（加载 ~/waypoints.xml）─────────────────────── -->
+  <node pkg="waterplus_map_tools" type="wp_manager" name="wp_manager"
+        output="screen">
+    <param name="load" value="/home/jasper/waypoints.xml"/>
+  </node>
+
+  <!-- ── 四车航点导航服务器（各在自己的 ns 下）────────────────────── -->
+  <!--
+    wp_navi_server 订阅 waterplus/navi_waypoint（相对话题，在各自 ns 下）
+    并调用 waterplus/get_waypoint_name 服务（来自全局 wp_manager）
+    需要 remap 到全局路径
+  -->
+  <group ns="robot_0">
+    <node pkg="waterplus_map_tools" type="wp_navi_server" name="wp_navi_server"
+          output="screen">
+      <remap from="waterplus/get_waypoint_name" to="/waterplus/get_waypoint_name"/>
+    </node>
+  </group>
+
+  <group ns="robot_1">
+    <node pkg="waterplus_map_tools" type="wp_navi_server" name="wp_navi_server"
+          output="screen">
+      <remap from="waterplus/get_waypoint_name" to="/waterplus/get_waypoint_name"/>
+    </node>
+  </group>
+
+  <group ns="robot_2">
+    <node pkg="waterplus_map_tools" type="wp_navi_server" name="wp_navi_server"
+          output="screen">
+      <remap from="waterplus/get_waypoint_name" to="/waterplus/get_waypoint_name"/>
+    </node>
+  </group>
+
+  <group ns="robot_3">
+    <node pkg="waterplus_map_tools" type="wp_navi_server" name="wp_navi_server"
+          output="screen">
+      <remap from="waterplus/get_waypoint_name" to="/waterplus/get_waypoint_name"/>
+    </node>
+  </group>
+
+  <!-- ── RViz（四车颜色区分）──────────────────────────────────────── -->
+  <node name="rviz" pkg="rviz" type="rviz"
+        args="-d $(find warehouse_qmix)/rviz/four_robots_nav.rviz"
+        output="screen"/>
+
+  <!-- ── 四车巡航测试脚本（延迟10s等待所有节点就绪）──────────────── -->
+  <node name="test_four_wp" pkg="warehouse_qmix" type="test_four_wp.py"
+        output="screen" launch-prefix="bash -c 'sleep 10; $0 $@'"/>
+
+</launch>

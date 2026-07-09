@@ -1,0 +1,72 @@
+<launch>
+
+  <!-- ── Gazebo 仿真环境 ─────────────────────────────────────────── -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find wpb_mani_simulator)/worlds/warehouse_cross.world"/>
+    <arg name="paused"     value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui"        value="true"/>
+    <arg name="recording"  value="false"/>
+    <arg name="debug"      value="false"/>
+  </include>
+
+  <!-- ── 机器人 URDF ────────────────────────────────────────────── -->
+  <param name="robot_description"
+         command="$(find xacro)/xacro --inorder $(find wpb_mani_description)/urdf/wpb_mani.urdf.xacro"/>
+
+  <!-- 起点：grid(15,8) → world(8.0,-15.0)，面朝北(Y=1.5707) -->
+  <node name="spawn_robot" pkg="gazebo_ros" type="spawn_model"
+        args="-param robot_description -urdf
+              -x 8.0 -y -15.0 -z 0.0 -Y 1.5707
+              -model wpb_mani"
+        output="screen"/>
+
+  <!-- ── 关节控制器 ─────────────────────────────────────────────── -->
+  <include file="$(find wpb_mani_simulator)/launch/wpb_mani_controllers.launch"/>
+
+  <!-- ── 激光雷达过滤（输出 /scan）────────────────────────────── -->
+  <node pkg="wpb_mani_simulator" type="wpb_mani_sim_lidar_filter"
+        name="wpb_mani_sim_lidar_filter" output="screen">
+    <param name="pub_topic" value="/scan"/>
+  </node>
+
+  <!-- ── 地图服务 ───────────────────────────────────────────────── -->
+  <node name="map_server" pkg="map_server" type="map_server"
+        args="$(find warehouse_qmix)/maps/warehouse_cross.yaml"
+        output="screen"/>
+
+  <!-- ── AMCL 定位 ──────────────────────────────────────────────── -->
+  <!-- 初始位姿由 test_single.py 通过 /initialpose 话题设置 -->
+  <include file="$(find wpb_mani_tutorials)/nav_lidar/amcl_omni.launch"/>
+
+  <!-- ── move_base 导航（robot_radius=0.25）────────────────────── -->
+  <node pkg="move_base" type="move_base" name="move_base"
+        respawn="false" output="screen">
+
+    <rosparam file="$(find warehouse_qmix)/nav_config/costmap_common.yaml"
+              command="load" ns="global_costmap"/>
+    <rosparam file="$(find warehouse_qmix)/nav_config/costmap_common.yaml"
+              command="load" ns="local_costmap"/>
+    <rosparam file="$(find warehouse_qmix)/nav_config/local_costmap.yaml"
+              command="load"/>
+    <rosparam file="$(find warehouse_qmix)/nav_config/global_costmap.yaml"
+              command="load"/>
+
+    <param name="base_global_planner"  value="global_planner/GlobalPlanner"/>
+    <param name="use_dijkstra"         value="true"/>
+    <param name="base_local_planner"   value="wpb_local_planner/WpbLocalPlanner"/>
+    <param name="controller_frequency" value="10" type="double"/>
+  </node>
+
+  <!-- ── RViz 可视化 ────────────────────────────────────────────── -->
+  <!-- 注意：boxes_3d / grab_box 节点已移除。
+       测试阶段使用直接关节命令模拟抓取，避免 grab_box 自主驱动机器人漂移。 -->
+  <node name="rviz" pkg="rviz" type="rviz"
+        args="-d $(find waterplus_map_tools)/rviz/nav.rviz"
+        output="screen"/>
+
+  <!-- ── 测试主脚本（延迟5s等待所有节点启动）────────────────────── -->
+  <node name="test_single" pkg="warehouse_qmix" type="test_single.py"
+        output="screen" launch-prefix="bash -c 'sleep 5; $0 $@'"/>
+
+</launch>

@@ -1,0 +1,81 @@
+<launch>
+  <!-- 单车完整抓取演示：仓库 world + 完整带臂 wpb_mani + 导航 + grasp_demo.py
+       基于 test_wp.launch，仅把末尾测试脚本换成 grasp_demo.py，
+       且不启用 grab_box/boxes_3d 行为节点(我们自己直接控制机械臂)。 -->
+
+  <!-- ── Gazebo ─────────────────────────────────────────────────── -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name"   value="$(find wpb_mani_simulator)/worlds/warehouse_cross.world"/>
+    <arg name="paused"       value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui"          value="true"/>
+    <arg name="recording"    value="false"/>
+    <arg name="debug"        value="false"/>
+  </include>
+
+  <!-- ── 机器人（起点 (-2.0,-7.0)，面朝北 Y=1.5707，机械臂折叠）──── -->
+  <param name="robot_description"
+         command="$(find xacro)/xacro --inorder $(find wpb_mani_description)/urdf/wpb_mani.urdf.xacro"/>
+  <node name="spawn_robot" pkg="gazebo_ros" type="spawn_model"
+        args="-param robot_description -urdf -x -2.0 -y -7.0 -z 0.0 -Y 1.5707 -model wpb_mani
+              -J joint2 -1.57 -J joint3 1.35 -J joint4 0.24"
+        output="screen"/>
+
+  <!-- ── 关节控制器(含已修复的 joint1 PID) ─────────────────────── -->
+  <include file="$(find wpb_mani_simulator)/launch/wpb_mani_controllers.launch"/>
+
+  <!-- ── 激光雷达滤波 ──────────────────────────────────────────── -->
+  <node pkg="wpb_mani_simulator" type="wpb_mani_sim_lidar_filter"
+        name="wpb_mani_sim_lidar_filter" output="screen">
+    <remap from="/scan_raw" to="/wpb_mani/scan_raw"/>
+    <param name="pub_topic" value="/scan"/>
+  </node>
+
+  <!-- ── 地图服务 ───────────────────────────────────────────────── -->
+  <node name="map_server" pkg="map_server" type="map_server"
+        args="$(find warehouse_qmix)/maps/warehouse_cross.yaml"
+        output="screen"/>
+
+  <!-- ── AMCL 定位 ──────────────────────────────────────────────── -->
+  <include file="$(find wpb_mani_tutorials)/nav_lidar/amcl_omni.launch"/>
+  <param name="amcl/initial_pose_x" value="-2.0"/>
+  <param name="amcl/initial_pose_y" value="-7.0"/>
+  <param name="amcl/initial_pose_a" value="1.5707"/>
+  <param name="amcl/max_particles"         value="5000"/>
+  <param name="amcl/laser_z_hit"           value="0.9"/>
+  <param name="amcl/laser_z_rand"          value="0.1"/>
+  <param name="amcl/transform_tolerance"   value="0.5"/>
+  <param name="amcl/update_min_d"          value="0.1"/>
+  <param name="amcl/update_min_a"          value="0.3"/>
+
+  <!-- ── move_base ─────────────────────────────────────────────── -->
+  <node pkg="move_base" type="move_base" name="move_base"
+        respawn="false" output="screen">
+    <rosparam file="$(find warehouse_qmix)/nav_config/costmap_common.yaml"
+              command="load" ns="global_costmap"/>
+    <rosparam file="$(find warehouse_qmix)/nav_config/costmap_common.yaml"
+              command="load" ns="local_costmap"/>
+    <rosparam file="$(find warehouse_qmix)/nav_config/local_costmap.yaml"  command="load"/>
+    <rosparam file="$(find warehouse_qmix)/nav_config/global_costmap.yaml" command="load"/>
+    <param name="base_global_planner"  value="global_planner/GlobalPlanner"/>
+    <param name="use_dijkstra"         value="true"/>
+    <param name="base_local_planner"   value="wpb_local_planner/WpbLocalPlanner"/>
+    <param name="controller_frequency" value="10" type="double"/>
+  </node>
+
+  <!-- ── waterplus 航点管理 + 导航服务器 ───────────────────────── -->
+  <node pkg="waterplus_map_tools" type="wp_manager"     name="wp_manager"     output="screen">
+    <param name="load" value="/home/jasper/waypoints.xml"/>
+  </node>
+  <node pkg="waterplus_map_tools" type="wp_navi_server"  name="wp_navi_server" output="screen"/>
+
+  <!-- ── 货架标记 + RViz ───────────────────────────────────────── -->
+  <node name="shelf_marker_pub" pkg="warehouse_qmix" type="shelf_marker_pub.py" output="screen"/>
+  <node name="rviz" pkg="rviz" type="rviz"
+        args="-d $(find warehouse_qmix)/rviz/nav.rviz" output="screen"/>
+
+  <!-- ── 抓取演示脚本(延迟10s等导航栈就绪)────────────────────── -->
+  <node name="grasp_demo" pkg="warehouse_qmix" type="grasp_demo.py"
+        output="screen" launch-prefix="bash -c 'sleep 10; $0 $@'"/>
+
+</launch>

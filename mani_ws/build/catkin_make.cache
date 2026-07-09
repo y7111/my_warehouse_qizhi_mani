@@ -1,0 +1,2 @@
+warehouse_qmix:waterplus_map_tools:wpb_mani/wpb_local_planner:wpb_mani/wpb_mani_behaviors:wpb_mani/wpb_mani_bringup:wpb_mani/wpb_mani_description:wpb_mani/wpb_mani_moveit_config:wpb_mani/wpb_mani_simulator:wpb_mani/wpb_mani_tutorials
+-DCATKIN_DEVEL_PREFIX=/home/jasper/mani_ws/devel -DCMAKE_INSTALL_PREFIX=/home/jasper/mani_ws/install -G Unix Makefiles

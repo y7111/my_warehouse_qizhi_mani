@@ -1,0 +1,13 @@
+<launch>
+  <!-- 【混合四车-加载测试,全新文件】加载嵌入式 4 车世界(规避 spawn 死锁) + 折臂。
+       先验证:4 台一次性加载成功、外观一致、机械臂折叠。暂不接导航/QMIX/抓取。 -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name"   value="$(find warehouse_qmix)/worlds/warehouse_hybrid.world"/>
+    <arg name="paused"       value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui"          value="true"/>
+  </include>
+
+  <node name="hybrid_fold_arms" pkg="warehouse_qmix" type="hybrid_fold_arms.py"
+        output="screen" launch-prefix="bash -c 'sleep 6; $0 $@'"/>
+</launch>

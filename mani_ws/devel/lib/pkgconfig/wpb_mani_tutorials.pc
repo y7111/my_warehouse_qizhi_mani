@@ -1,0 +1,8 @@
+prefix=/home/jasper/mani_ws/devel
+
+Name: wpb_mani_tutorials
+Description: Description of wpb_mani_tutorials
+Version: 0.0.1
+Cflags: -I/home/jasper/mani_ws/devel/include
+Libs: -L${prefix}/lib -lwpb_mani_tutorials
+Requires: dynamic_reconfigure roscpp rospy std_msgs

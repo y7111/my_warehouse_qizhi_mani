@@ -1,0 +1,8 @@
+prefix=/home/jasper/mani_ws/devel
+
+Name: warehouse_qmix
+Description: Description of warehouse_qmix
+Version: 0.1.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

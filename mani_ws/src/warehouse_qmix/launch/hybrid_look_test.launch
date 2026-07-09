@@ -1,0 +1,20 @@
+<launch>
+  <!-- 【可行性测试,全新文件】只 spawn 一台 use_planar:=true 的完整 wpb_mani,
+       看:① 外观是否=真车 ② 没加机械臂控制器时胳膊会不会塌。
+       不依赖、不改动任何现有 4 车代码。 -->
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name"   value="$(find wpb_mani_simulator)/worlds/warehouse_cross.world"/>
+    <arg name="paused"       value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui"          value="true"/>
+  </include>
+
+  <!-- 轻量 planar 模式的完整外观车 -->
+  <param name="look_robot"
+         command="$(find xacro)/xacro $(find wpb_mani_description)/urdf/wpb_mani.urdf.xacro use_planar:=true"/>
+  <node name="spawn_look" pkg="gazebo_ros" type="spawn_model"
+        args="-param look_robot -urdf -x -2.0 -y -7.0 -z 0.0 -Y 1.5707 -model look_car
+              -J joint2 -1.57 -J joint3 1.35 -J joint4 0.24"
+        output="screen"/>
+</launch>

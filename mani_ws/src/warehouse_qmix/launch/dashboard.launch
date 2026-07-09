@@ -1,0 +1,9 @@
+<launch>
+  <!-- 多AGV仓库实时监控大屏：聚合各话题 + 内嵌 HTTP 服务（零依赖）
+       与主仿真分开起：先 roslaunch warehouse_qmix warehouse_qmix.launch，
+       再在新终端 roslaunch warehouse_qmix dashboard.launch，
+       浏览器打开 http://localhost:8080 -->
+  <node pkg="warehouse_qmix" type="dashboard_server.py" name="dashboard_server" output="screen">
+    <param name="port" value="8080"/>
+  </node>
+</launch>

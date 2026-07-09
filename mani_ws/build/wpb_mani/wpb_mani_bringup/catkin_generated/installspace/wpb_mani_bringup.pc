@@ -1,0 +1,8 @@
+prefix=/home/jasper/mani_ws/install
+
+Name: wpb_mani_bringup
+Description: Description of wpb_mani_bringup
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

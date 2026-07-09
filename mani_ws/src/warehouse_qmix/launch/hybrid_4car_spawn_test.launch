@@ -1,0 +1,52 @@
+<launch>
+  <!-- 【4车 spawn 死锁测试,全新文件】带命名空间 spawn 4 台 use_planar 完整外观车,
+       错峰启动。只验证:4 台能否都成功出现(不死锁)、位置朝向是否正确。
+       暂不接导航/QMIX。不改动任何现有代码。 -->
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name"   value="$(find wpb_mani_simulator)/worlds/warehouse_cross.world"/>
+    <arg name="paused"       value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui"          value="true"/>
+  </include>
+
+  <!-- robot_0  (-1.5,-7) -->
+  <group ns="robot_0">
+    <param name="robot_description"
+           command="$(find xacro)/xacro $(find wpb_mani_description)/urdf/wpb_mani.urdf.xacro robot_ns:=robot_0 use_planar:=true"/>
+    <node name="spawn" pkg="gazebo_ros" type="spawn_model"
+          args="-param robot_description -urdf -x -1.5 -y -7.0 -Y 1.5707 -model robot_0
+                -J joint2 -1.57 -J joint3 1.35 -J joint4 0.24"
+          launch-prefix="bash -c 'sleep 2;  $0 $@'" output="screen"/>
+  </group>
+
+  <!-- robot_1  (-0.5,-7) -->
+  <group ns="robot_1">
+    <param name="robot_description"
+           command="$(find xacro)/xacro $(find wpb_mani_description)/urdf/wpb_mani.urdf.xacro robot_ns:=robot_1 use_planar:=true"/>
+    <node name="spawn" pkg="gazebo_ros" type="spawn_model"
+          args="-param robot_description -urdf -x -0.5 -y -7.0 -Y 1.5707 -model robot_1
+                -J joint2 -1.57 -J joint3 1.35 -J joint4 0.24"
+          launch-prefix="bash -c 'sleep 6;  $0 $@'" output="screen"/>
+  </group>
+
+  <!-- robot_2  (0.5,-7) -->
+  <group ns="robot_2">
+    <param name="robot_description"
+           command="$(find xacro)/xacro $(find wpb_mani_description)/urdf/wpb_mani.urdf.xacro robot_ns:=robot_2 use_planar:=true"/>
+    <node name="spawn" pkg="gazebo_ros" type="spawn_model"
+          args="-param robot_description -urdf -x 0.5 -y -7.0 -Y 1.5707 -model robot_2
+                -J joint2 -1.57 -J joint3 1.35 -J joint4 0.24"
+          launch-prefix="bash -c 'sleep 10; $0 $@'" output="screen"/>
+  </group>
+
+  <!-- robot_3  (1.5,-7) -->
+  <group ns="robot_3">
+    <param name="robot_description"
+           command="$(find xacro)/xacro $(find wpb_mani_description)/urdf/wpb_mani.urdf.xacro robot_ns:=robot_3 use_planar:=true"/>
+    <node name="spawn" pkg="gazebo_ros" type="spawn_model"
+          args="-param robot_description -urdf -x 1.5 -y -7.0 -Y 1.5707 -model robot_3
+                -J joint2 -1.57 -J joint3 1.35 -J joint4 0.24"
+          launch-prefix="bash -c 'sleep 14; $0 $@'" output="screen"/>
+  </group>
+</launch>
